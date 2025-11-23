@@ -69,7 +69,7 @@ function HomePage() {
 
       <div className="bg-black w-full py-20 px-15 text-white">
         <h2 className="text-6xl font-semibold">Testimonials</h2>
-        <p className="text-gray-300 text-2xl mb-12">Here's what people are saying</p>
+        <p className="text-gray-300 py-5 text-2xl mb-12">Here's what people are saying</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
 
