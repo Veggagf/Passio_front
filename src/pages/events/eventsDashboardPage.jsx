@@ -1,28 +1,66 @@
+import { useState } from "react";
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 
 export default function EventsDashboardPage() {
-  // Ejemplo de columnas y datos
-  const columns = [
+  // -------------------------
+  // ESTADO PARA CAMBIAR SECCIÓN
+  // -------------------------
+  const [activeSection, setActiveSection] = useState("asistentes");
+
+  // -------------------------
+  // COLUMNAS Y DATOS POR SECCIÓN
+  // -------------------------
+
+  const asistentesColumns = [
     { key: "id", label: "ID" },
     { key: "name", label: "Name" },
     { key: "email", label: "E-Mail" },
   ];
 
-  const data = [
+  const asistentesData = [
     { id: "001", name: "Fer Vega", email: "fv@mail.com" },
-    // Puedes agregar más usuarios aquí
   ];
 
-  // Funciones de acciones
+  const boletosColumns = [
+    { key: "ticket", label: "Ticket" },
+    { key: "tipo", label: "Tipo" },
+    { key: "precio", label: "Precio" },
+  ];
+
+  const boletosData = [
+    { ticket: "T-001", tipo: "General", precio: "$450" },
+  ];
+
+  const registrosColumns = [
+    { key: "hora", label: "Hora" },
+    { key: "usuario", label: "Usuario" },
+    { key: "accion", label: "Acción" },
+  ];
+
+  const registrosData = [
+    { hora: "10:32 AM", usuario: "Fer Vega", accion: "Entrada" },
+  ];
+
+  const dashboardColumns = [
+    { key: "id", label: "ID" },
+    { key: "ticketid", label: "Ticked ID"},
+    { key: "datatime", label: "Data Time" },
+  ];
+
+  const dashboardData = [
+    { id: "001", ticketid: "T-001", datatime: "10:32 AM" },
+  ];
+
+  // Acciones
   const handleEdit = (row) => {
-    alert(`Editar usuario: ${row.name}`);
+    alert(`Editar: ${JSON.stringify(row)}`);
   };
 
   const handleDelete = (row) => {
-    alert(`Eliminar usuario: ${row.name}`);
+    alert(`Eliminar: ${JSON.stringify(row)}`);
   };
 
   return (
@@ -38,14 +76,11 @@ export default function EventsDashboardPage() {
 
         <h1 className="text-7xl font-medium mb-3 text-white">Innovate Summit 2025</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
-          La Innovate Summit 2025 Reúne A Líderes, Emprendedores Y Visionarios Para 
-          Explorar Las Tendencias Que Están Transformando El Mundo.
-          Un Evento Diseñado Para Impulsar Ideas, Presentar Nuevas Tecnologías Y Conectar
-          A Profesionales Que Buscan Inspirar El Futuro. Charlas Magistrales, Paneles Y
-          Networking En Un Ambiente Moderno Y Dinámico.
+          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios para 
+          explorar las tendencias que están transformando el mundo.
         </div>
 
-        {/* INFO BOXES usando EventInfoCard */}
+        {/* INFO BOXES */}
         <div className="flex gap-6 mb-8">
           <EventInfoCard value="500" label="Capacidad" />
           <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
@@ -58,16 +93,101 @@ export default function EventsDashboardPage() {
         {/* SIDEBAR */}
         <div className="min-w-[220px] bg-black py-10 px-6 border-r border-white/10">
           <nav className="flex flex-col gap-4">
-            <a href="#" className="font-bold text-white hover:text-gray-300">ASISTENTES</a>
-            <a href="#" className="text-white hover:text-gray-300">BOLETOS</a>
-            <a href="#" className="text-white hover:text-gray-300">REGISTRO DE ACCESOS</a>
-            <a href="#" className="text-white hover:text-gray-300">DASHBOARD</a>
+
+            <button
+              onClick={() => setActiveSection("asistentes")}
+              className={`text-left ${
+                activeSection === "asistentes" ? "font-bold text-white" : "text-white/70"
+              } hover:text-white`}
+            >
+              ASISTENTES
+            </button>
+
+            <button
+              onClick={() => setActiveSection("boletos")}
+              className={`text-left ${
+                activeSection === "boletos" ? "font-bold text-white" : "text-white/70"
+              } hover:text-white`}
+            >
+              BOLETOS
+            </button>
+
+            <button
+              onClick={() => setActiveSection("registros")}
+              className={`text-left ${
+                activeSection === "registros" ? "font-bold text-white" : "text-white/70"
+              } hover:text-white`}
+            >
+              REGISTRO DE ACCESOS
+            </button>
+
+            <button
+              onClick={() => setActiveSection("dashboard")}
+              className={`text-left ${
+                activeSection === "dashboard" ? "font-bold text-white" : "text-white/70"
+              } hover:text-white`}
+            >
+              DASHBOARD
+            </button>
+
           </nav>
         </div>
 
-        {/* TABLE SECTION */}
+        {/* TABLE / CONTENIDO */}
         <div className="flex-grow py-10 px-8">
-          <Table columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} title="ASISTENTES" />
+
+          {activeSection === "asistentes" && (
+            <Table
+              columns={asistentesColumns}
+              data={asistentesData}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              title="ASISTENTES"
+            />
+          )}
+
+          {activeSection === "boletos" && (
+            <Table
+              columns={boletosColumns}
+              data={boletosData}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              title="BOLETOS"
+            />
+          )}
+
+          {activeSection === "registros" && (
+            <Table
+              columns={registrosColumns}
+              data={registrosData}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              title="REGISTRO DE ACCESOS"
+            />
+          )}
+
+          {activeSection === "dashboard" && (
+            <>
+                <h3 className="text-4xl mb-6 text-white font-semibold">DASHBOARD</h3>
+
+                <div className="flex gap-6 mb-8">
+                <EventInfoCard value="425" label="Capacidad" />
+                <EventInfoCard value="425" label="Boletos Vendidos" />
+                <EventInfoCard value="75"  label="Capacidad Restante" />
+                </div>
+
+                <Table
+                className="text-black"
+                columns={dashboardColumns}
+                data={dashboardData}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                title="Accesos Validados"
+                />
+            </>
+            )}
+
+
         </div>
       </div>
 
