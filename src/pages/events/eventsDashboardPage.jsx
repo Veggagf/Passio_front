@@ -5,15 +5,10 @@ import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 
 export default function EventsDashboardPage() {
-  // -------------------------
-  // ESTADO PARA CAMBIAR SECCIÓN
-  // -------------------------
+  //Estado para cambiar de sección
   const [activeSection, setActiveSection] = useState("asistentes");
 
-  // -------------------------
-  // COLUMNAS Y DATOS POR SECCIÓN
-  // -------------------------
-
+  //Columnas y datos por sección
   const asistentesColumns = [
     { key: "id", label: "ID" },
     { key: "name", label: "Name" },
@@ -30,9 +25,7 @@ export default function EventsDashboardPage() {
     { key: "precio", label: "Precio" },
   ];
 
-  const boletosData = [
-    { ticket: "T-001", tipo: "General", precio: "$450" },
-  ];
+  const boletosData = [{ ticket: "T-001", tipo: "General", precio: "$450" }];
 
   const registrosColumns = [
     { key: "hora", label: "Hora" },
@@ -46,7 +39,7 @@ export default function EventsDashboardPage() {
 
   const dashboardColumns = [
     { key: "id", label: "ID" },
-    { key: "ticketid", label: "Ticked ID"},
+    { key: "ticketid", label: "Ticked ID" },
     { key: "datatime", label: "Data Time" },
   ];
 
@@ -70,14 +63,18 @@ export default function EventsDashboardPage() {
       {/* EVENT INFO */}
       <div className="bg-black w-full px-10 py-10">
         <div className="flex justify-end mb-4 gap-2">
-          <button className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200">Editar</button>
-          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800">Eliminar</button>
+          <button className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200">
+            Editar
+          </button>
+          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+            Eliminar
+          </button>
         </div>
 
-        <h1 className="text-7xl font-medium mb-3 text-white">Innovate Summit 2025</h1>
+        <h1 className="text-7xl mb-3 text-white">Innovate Summit 2025</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
-          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios para 
-          explorar las tendencias que están transformando el mundo.
+          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios
+          para explorar las tendencias que están transformando el mundo.
         </div>
 
         {/* INFO BOXES */}
@@ -91,13 +88,14 @@ export default function EventsDashboardPage() {
       {/* SIDEBAR + TABLE */}
       <div className="flex bg-black px-10 pb-20">
         {/* SIDEBAR */}
-        <div className="min-w-[220px] bg-black py-10 px-6 border-r border-white/10">
+        <div className="min-w-[220px] bg-black py-10 px-6">
           <nav className="flex flex-col gap-4">
-
             <button
               onClick={() => setActiveSection("asistentes")}
               className={`text-left ${
-                activeSection === "asistentes" ? "font-bold text-white" : "text-white/70"
+                activeSection === "asistentes"
+                  ? "font-bold text-white"
+                  : "text-white/70"
               } hover:text-white`}
             >
               ASISTENTES
@@ -106,7 +104,9 @@ export default function EventsDashboardPage() {
             <button
               onClick={() => setActiveSection("boletos")}
               className={`text-left ${
-                activeSection === "boletos" ? "font-bold text-white" : "text-white/70"
+                activeSection === "boletos"
+                  ? "font-bold text-white"
+                  : "text-white/70"
               } hover:text-white`}
             >
               BOLETOS
@@ -115,7 +115,9 @@ export default function EventsDashboardPage() {
             <button
               onClick={() => setActiveSection("registros")}
               className={`text-left ${
-                activeSection === "registros" ? "font-bold text-white" : "text-white/70"
+                activeSection === "registros"
+                  ? "font-bold text-white"
+                  : "text-white/70"
               } hover:text-white`}
             >
               REGISTRO DE ACCESOS
@@ -124,18 +126,18 @@ export default function EventsDashboardPage() {
             <button
               onClick={() => setActiveSection("dashboard")}
               className={`text-left ${
-                activeSection === "dashboard" ? "font-bold text-white" : "text-white/70"
+                activeSection === "dashboard"
+                  ? "font-bold text-white"
+                  : "text-white/70"
               } hover:text-white`}
             >
               DASHBOARD
             </button>
-
           </nav>
         </div>
 
         {/* TABLE / CONTENIDO */}
         <div className="flex-grow py-10 px-8">
-
           {activeSection === "asistentes" && (
             <Table
               columns={asistentesColumns}
@@ -168,26 +170,26 @@ export default function EventsDashboardPage() {
 
           {activeSection === "dashboard" && (
             <>
-                <h3 className="text-4xl mb-6 text-white font-semibold">DASHBOARD</h3>
+              <h3 className="text-4xl mb-6 text-white font-semibold">
+                DASHBOARD
+              </h3>
 
-                <div className="flex gap-6 mb-8">
+              <div className="flex gap-6 mb-8">
                 <EventInfoCard value="425" label="Capacidad" />
                 <EventInfoCard value="425" label="Boletos Vendidos" />
-                <EventInfoCard value="75"  label="Capacidad Restante" />
-                </div>
+                <EventInfoCard value="75" label="Capacidad Restante" />
+              </div>
 
-                <Table
+              <Table
                 className="text-black"
                 columns={dashboardColumns}
                 data={dashboardData}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 title="Accesos Validados"
-                />
+              />
             </>
-            )}
-
-
+          )}
         </div>
       </div>
 

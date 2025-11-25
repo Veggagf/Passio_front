@@ -1,9 +1,7 @@
 export default function Table({ columns, data, onEdit, onDelete, title }) {
   return (
     <div className="bg-white rounded-2xl p-8 w-full">
-      {title && (
-        <h3 className="text-4xl mb-6 text-black">{title}</h3>
-      )}
+      {title && <h3 className="text-4xl mb-6 text-black">{title}</h3>}
       <table className="w-full text-center border-separate border-spacing-0">
         <thead>
           <tr>
@@ -36,10 +34,7 @@ export default function Table({ columns, data, onEdit, onDelete, title }) {
             data.map((row) => (
               <tr key={row.id} className="border-t">
                 {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className="py-3 px-2 border border-black"
-                  >
+                  <td key={col.key} className="py-3 px-2 border border-black">
                     {row[col.key]}
                   </td>
                 ))}

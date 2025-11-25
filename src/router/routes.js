@@ -4,5 +4,6 @@ export const routes = {
   register: "/register",
   eventslistpage: "/events",
   eventsdashboardpage: "/events/dashboard",
+  usermanagementpage: "/admin/usuarios",
 
 };
