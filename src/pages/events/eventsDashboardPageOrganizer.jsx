@@ -4,7 +4,7 @@ import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 
-export default function EventsDashboardPage() {
+export default function EventsDashboardPageOrganizer() {
   //Estado para cambiar de sección
   const [activeSection, setActiveSection] = useState("asistentes");
 
@@ -46,15 +46,6 @@ export default function EventsDashboardPage() {
   const dashboardData = [
     { id: "001", ticketid: "T-001", datatime: "10:32 AM" },
   ];
-
-  // Acciones
-  const handleEdit = (row) => {
-    alert(`Editar: ${JSON.stringify(row)}`);
-  };
-
-  const handleDelete = (row) => {
-    alert(`Eliminar: ${JSON.stringify(row)}`);
-  };
 
   return (
     <>
@@ -142,8 +133,6 @@ export default function EventsDashboardPage() {
             <Table
               columns={asistentesColumns}
               data={asistentesData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="ASISTENTES"
             />
           )}
@@ -152,8 +141,6 @@ export default function EventsDashboardPage() {
             <Table
               columns={boletosColumns}
               data={boletosData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="BOLETOS"
             />
           )}
@@ -162,8 +149,6 @@ export default function EventsDashboardPage() {
             <Table
               columns={registrosColumns}
               data={registrosData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="REGISTRO DE ACCESOS"
             />
           )}
@@ -184,8 +169,6 @@ export default function EventsDashboardPage() {
                 className="text-black"
                 columns={dashboardColumns}
                 data={dashboardData}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
                 title="Accesos Validados"
               />
             </>
