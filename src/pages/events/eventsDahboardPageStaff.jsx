@@ -5,7 +5,6 @@ import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 
 export default function EventsDashboardPageStaff() {
-  // Estado para cambiar de sección
   const [activeSection, setActiveSection] = useState("boletos");
 
   const registrosaccesosColumns = [
@@ -24,14 +23,12 @@ export default function EventsDashboardPageStaff() {
       codigo: "A-001",
       registrado: "Sí",
     },
-    // Puedes agregar más registros aquí
   ];
 
   return (
     <>
       <Navbar />
 
-      {/* EVENT INFO */}
       <div className="bg-black w-full px-10 py-10">
         <h1 className="text-7xl mb-3 text-white">Innovate Summit 2025</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
@@ -39,7 +36,6 @@ export default function EventsDashboardPageStaff() {
           para explorar las tendencias que están transformando el mundo.
         </div>
 
-        {/* INFO BOXES */}
         <div className="flex gap-6 mb-8">
           <EventInfoCard value="500" label="Capacidad" />
           <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
@@ -47,9 +43,7 @@ export default function EventsDashboardPageStaff() {
         </div>
       </div>
 
-      {/* SIDEBAR + TABLE */}
       <div className="flex bg-black px-10 pb-20">
-        {/* SIDEBAR */}
         <div className="min-w-[220px] bg-black py-10 px-6">
           <nav className="flex flex-col gap-4">
             <button
@@ -75,7 +69,6 @@ export default function EventsDashboardPageStaff() {
           </nav>
         </div>
 
-        {/* TABLE / CONTENIDO */}
         <div className="flex-grow py-10 px-8">
           {activeSection === "boletos" && (
             <>

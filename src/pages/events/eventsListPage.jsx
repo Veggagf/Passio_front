@@ -13,9 +13,6 @@ import Evento6 from "../../assets/Imagenes/eventos/even6.jpg";
 import { getEvents } from '../../api/eventService';
 
 function EventsListPage() {
-  // navigate is available if needed, but currently not used here
-
-  // auth store available via EventCard; we don't need the role here
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +22,6 @@ function EventsListPage() {
 
   const [events, setEvents] = useState([]);
   useEffect(() => {
-    // Fetch events from the API if available, otherwise fallback to static list
     getEvents().then((res) => setEvents(res)).catch(() => {
       setEvents([
         { id: 1, image: Evento1, title: "Innovate Summit 2025", link: "#" },
@@ -42,7 +38,6 @@ function EventsListPage() {
     event.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // EventCard component performs redirect based on role
 
   return (
     <>

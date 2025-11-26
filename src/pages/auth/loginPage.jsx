@@ -1,6 +1,5 @@
 import LoginForm from '../../components/auth/LoginForm';
-// Login form uses its own state and logic via LoginForm
-import { Link } from 'react-router-dom'; // NECESARIO para los enlaces de registro
+import { Link } from 'react-router-dom';
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import loginImage from "../../assets/Imagenes/login.jpg";

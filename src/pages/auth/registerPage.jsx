@@ -20,15 +20,26 @@ function RegisterPage() {
           </h1>
         </div>
       </div>
-
       <div className="bg-black w-full py-20 text-white flex justify-center px-16">
-        
         <div className="w-full max-w-3xl">
           <h2 className="text-4xl font-jetbrains font-semibold mb-10 tracking-wide">
             REGÍSTRATE
           </h2>
 
           <RegisterForm registerAs={'organizador'} />
+          <div className="mt-8 pt-4 border-t border-gray-800 w-full text-left">
+              <p className="text-gray-400 mb-3 text-base">
+                ¿Quieres registrarte como **Usuario**?
+              </p>
+              
+              <Link 
+                to={routes.registerUser} 
+                className="text-white text-lg font-semibold border-b border-white hover:border-gray-400 transition duration-300"
+              >
+                Soy Usuario
+              </Link>
+          </div>
+
         </div>
       </div>
 

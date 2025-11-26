@@ -1,8 +1,6 @@
 export default function EventInfoCard({ value, label }) {
-  // Verifica si el value es solo número (opcionalmente permite espacios)
   const isNumber = typeof value === "number" || /^\d+$/.test(value);
   return (
-    //max-w-sm
     <div className="bg-white rounded-xl shadow-md p-8 w-full text-center font-jetbrains">
       <div
         className={`${

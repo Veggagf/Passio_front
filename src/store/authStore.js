@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Zustand auth store persisted to localStorage
 export const useAuthStore = create(persist((set) => ({
 	user: null,
 	role: null,

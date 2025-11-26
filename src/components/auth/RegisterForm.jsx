@@ -28,7 +28,6 @@ export default function RegisterForm({ registerAs = 'usuario' }) {
     }
     setLoading(true);
     try {
-      // Include role or type if needed by backend
       await apiRegister({ ...formData, role: registerAs });
       navigate('/login');
     } catch (err) {

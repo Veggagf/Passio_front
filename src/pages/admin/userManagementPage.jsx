@@ -25,13 +25,11 @@ export default function UserManagementPage() {
   return (
     <>
       <Navbar />
-      {/* Título principal */}
       <h2 className="text-7xl text-center text-white py-10 bg-black">
         Usuarios y organizadores
       </h2>
 
       <div className="flex min-h-screen bg-black">
-        {/* SIDEBAR IZQUIERDO */}
         <div className="min-w-[220px] bg-black py-10 px-7 flex flex-col">
           <h1 className="text-4xl font-bold cursor-pointer text-white mb-10">
             PASSIO
@@ -79,8 +77,6 @@ export default function UserManagementPage() {
             </button>
           </nav>
         </div>
-
-        {/* TABLA */}
         <main className="flex-grow px-10 py-10 flex items-start">
           <div className="bg-white rounded-2xl w-full mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">

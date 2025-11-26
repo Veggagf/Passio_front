@@ -5,10 +5,8 @@ import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 
 export default function EventsDashboardPageOrganizer() {
-  //Estado para cambiar de sección
   const [activeSection, setActiveSection] = useState("asistentes");
 
-  //Columnas y datos por sección
   const asistentesColumns = [
     { key: "id", label: "ID" },
     { key: "name", label: "Name" },
@@ -51,7 +49,6 @@ export default function EventsDashboardPageOrganizer() {
     <>
       <Navbar />
 
-      {/* EVENT INFO */}
       <div className="bg-black w-full px-10 py-10">
         <div className="flex justify-end mb-4 gap-2">
           <button className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200">
@@ -68,7 +65,6 @@ export default function EventsDashboardPageOrganizer() {
           para explorar las tendencias que están transformando el mundo.
         </div>
 
-        {/* INFO BOXES */}
         <div className="flex gap-6 mb-8">
           <EventInfoCard value="500" label="Capacidad" />
           <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
@@ -76,9 +72,7 @@ export default function EventsDashboardPageOrganizer() {
         </div>
       </div>
 
-      {/* SIDEBAR + TABLE */}
       <div className="flex bg-black px-10 pb-20">
-        {/* SIDEBAR */}
         <div className="min-w-[220px] bg-black py-10 px-6">
           <nav className="flex flex-col gap-4">
             <button
@@ -127,7 +121,6 @@ export default function EventsDashboardPageOrganizer() {
           </nav>
         </div>
 
-        {/* TABLE / CONTENIDO */}
         <div className="flex-grow py-10 px-8">
           {activeSection === "asistentes" && (
             <Table

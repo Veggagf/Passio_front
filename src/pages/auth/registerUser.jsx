@@ -29,6 +29,19 @@ function RegisterUser() {
           </h2>
 
           <RegisterForm registerAs={'usuario'} />
+          <div className="mt-8 pt-4 border-t border-gray-800 w-full text-left"> 
+              <p className="text-gray-400 mb-3 text-base">
+                ¿Quieres registrarte como **Organizador**?
+              </p>
+              
+              <Link 
+                  to={routes.register} 
+                  className="text-white text-lg font-semibold border-b border-white hover:border-gray-400 transition duration-300"
+              >
+                  Soy Organizador
+              </Link>
+          </div>
+          
         </div>
       </div>
 
