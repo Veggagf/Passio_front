@@ -2,9 +2,11 @@ export const routes = {
   home: "/",
   login: "/login",
   register: "/register",
+  registerUser: "/registerUser",
   eventslistpage: "/events",
-  eventsdashboardpage: "/events/dashboard",
   usermanagementpage: "/admin/usuarios",
-  eventsdashboardpagestaff: "/events/dashboard/staff",
+  eventsdashboardpage: "/events/dashboard/:eventId", 
+  eventsdashboardpagestaff: "/events/dashboard/staff/:eventId", 
+  boletos: "/boletos/:eventId",
   eventsdashboardpageorganizer: "/events/dashboard/organizer",
 };
