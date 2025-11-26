@@ -13,4 +13,18 @@ instance.interceptors.request.use((config) => {
 	return config;
 });
 
+// Response interceptor: handle 401 Unauthorized globally
+instance.interceptors.response.use(
+	(response) => response,
+	(error) => {
+		if (error.response && error.response.status === 401) {
+			// Clear persisted auth store via localStorage and redirect to login
+			localStorage.removeItem('token');
+			localStorage.removeItem('role');
+			window.location.href = '/login';
+		}
+		return Promise.reject(error);
+	}
+);
+
 export default instance;

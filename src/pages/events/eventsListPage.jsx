@@ -1,39 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+// navigate not needed here (EventCard handles navigation)
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import CreateEventModal from "../../pages/events/createEventPage";
+import EventCard from '../../components/events/EventCard';
 import Evento1 from "../../assets/Imagenes/eventos/even1.jpg";
 import Evento2 from "../../assets/Imagenes/eventos/even2.jpg";
 import Evento3 from "../../assets/Imagenes/eventos/even3.jpg";
 import Evento4 from "../../assets/Imagenes/eventos/even4.jpg";
 import Evento5 from "../../assets/Imagenes/eventos/even5.jpg";
 import Evento6 from "../../assets/Imagenes/eventos/even6.jpg";
-function EventCard({ image, title, onClick }) {
-  return (
-        <div
-      className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition duration-300"
-      onClick={onClick}
-    >
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-80 object-cover"
-      />
-      <div className="p-4">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <span className="text-gray-500 mt-2 inline-block hover:text-gray-700">
-          Ver detalles →
-        </span>
-      </div>
-    </div>
-  );
-}
+import { getEvents } from '../../api/eventService';
 
 function EventsListPage() {
-  const navigate = useNavigate();
+  // navigate is available if needed, but currently not used here
 
-  const [userRole] = useState('organizador');
+  // auth store available via EventCard; we don't need the role here
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,35 +23,26 @@ function EventsListPage() {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const events = [
-    { id: 1, image: Evento1, title: "Innovate Summit 2025", link: "#" },
-    { id: 2, image: Evento2, title: "Night Lights Live", link: "#" },
-    { id: 3, image: Evento3, title: "Future Creators Expo", link: "#" },
-    { id: 4, image: Evento4, title: "Global Tech Forum", link: "#" },
-    { id: 5, image: Evento5, title: "VibeWave Sessions", link: "#" },
-    { id: 6, image: Evento6, title: "Sunset Garden Picnic Festival", link: "#" },
-  ];
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    // Fetch events from the API if available, otherwise fallback to static list
+    getEvents().then((res) => setEvents(res)).catch(() => {
+      setEvents([
+        { id: 1, image: Evento1, title: "Innovate Summit 2025", link: "#" },
+        { id: 2, image: Evento2, title: "Night Lights Live", link: "#" },
+        { id: 3, image: Evento3, title: "Future Creators Expo", link: "#" },
+        { id: 4, image: Evento4, title: "Global Tech Forum", link: "#" },
+        { id: 5, image: Evento5, title: "VibeWave Sessions", link: "#" },
+        { id: 6, image: Evento6, title: "Sunset Garden Picnic Festival", link: "#" },
+      ]);
+    });
+  }, []);
 
   const filteredEvents = events.filter(event =>
     event.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleCardClick = (eventId) => {
-    switch (userRole) {
-      case 'admin':
-      case 'organizador':
-        navigate(`/events/dashboard/${eventId}`);
-        break;
-      case 'staff':
-        navigate(`/events/dashboard/staff/${eventId}`);
-        break;
-      case 'usuario':
-        navigate(`/boletos/${eventId}`);
-        break;
-      default:
-        alert("Debes iniciar sesión para ver los detalles del evento.");
-    }
-  };
+  // EventCard component performs redirect based on role
 
   return (
     <>
@@ -102,9 +75,7 @@ function EventsListPage() {
           {filteredEvents.map((event) => (
             <EventCard
               key={event.id}
-              image={event.image}
-              title={event.title}
-              onClick={() => handleCardClick(event.id)}
+              event={event}
             />
           ))}
 

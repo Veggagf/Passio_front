@@ -12,6 +12,8 @@ import Boletos from "../pages/events/boletos.jsx";
 import { routes } from "./routes.js";
 import EventsDashboardPageStaff from "../pages/events/eventsDahboardPageStaff.jsx";
 import EventsDashboardPageOrganizer from "../pages/events/eventsDashboardPageOrganizer.jsx";
+import ProtectedRoute from "../components/auth/ProductedRoute.jsx";
+import { ROLES } from "../utils/constants";
 
 export default function AppRouter() {
   return (
@@ -26,19 +28,35 @@ export default function AppRouter() {
 
         <Route
           path={routes.eventsdashboardpage}
-          element={<EventsDashboardPage />}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR]}>
+              <EventsDashboardPage />
+            </ProtectedRoute>
+          }
         />
         <Route
           path={routes.eventsdashboardpagestaff}
-          element={<EventsDashboardPageStaff />}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}>
+              <EventsDashboardPageStaff />
+            </ProtectedRoute>
+          }
         />
         <Route
           path={routes.usermanagementpage}
-          element={<UserManagementPage />}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR]}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          }
         />
         <Route
            path={routes.eventsdashboardpageorganizer}
-           element={<EventsDashboardPageOrganizer />}
+           element={
+             <ProtectedRoute allowedRoles={[ROLES.ORGANIZADOR]}>
+               <EventsDashboardPageOrganizer />
+             </ProtectedRoute>
+           }
         />
         
       </Routes>

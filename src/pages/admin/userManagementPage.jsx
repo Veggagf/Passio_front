@@ -1,24 +1,26 @@
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
-import Table from "../../components/common/Table";
-import { useState } from "react";
+import UserTable from '../../components/users/userTable';
+import UserForm from '../../components/users/userFrom';
+import { useEffect, useState } from "react";
+import { getUsers } from '../../api/userService';
 
 export default function UserManagementPage() {
   const [activeRole, setActiveRole] = useState("USUARIOS");
+  const [users, setUsers] = useState([]);
+  const [editing, setEditing] = useState(null);
 
-  const columns = [
-    { key: "id", label: "ID" },
-    { key: "name", label: "Name" },
-    { key: "email", label: "E-Mail" },
-  ];
+  useEffect(() => {
+    getUsers().then(setUsers).catch(err => console.error(err));
+  }, []);
 
-  const data = [
-    { id: "001", name: "Fer Vega", email: "Fv@Mail.Com" },
-    // Puedes agregar más usuarios aquí
-  ];
+  const handleEdit = (row) => setEditing(row);
+  const handleDelete = () => setEditing(null);
 
-  const handleEdit = (row) => alert(`Editar usuario: ${row.name}`);
-  const handleDelete = (row) => alert(`Eliminar usuario: ${row.name}`);
+  const refresh = async () => {
+    const u = await getUsers();
+    setUsers(u);
+  };
 
   return (
     <>
@@ -80,14 +82,14 @@ export default function UserManagementPage() {
 
         {/* TABLA */}
         <main className="flex-grow px-10 py-10 flex items-start">
-          <div className="bg-white rounded-2xl w-full mx-auto">
-            <Table
-              columns={columns}
-              data={data}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              title={activeRole}
-            />
+          <div className="bg-white rounded-2xl w-full mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <UserTable users={users} onEdit={handleEdit} onRefresh={refresh} />
+            </div>
+            <div>
+              <h3 className="text-2xl mb-4">{editing ? 'Editar usuario' : 'Crear usuario'}</h3>
+              <UserForm initialUser={editing} onSaved={refresh} />
+            </div>
           </div>
         </main>
       </div>
