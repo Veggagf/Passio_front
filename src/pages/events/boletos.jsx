@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import EventInfoCard from "../../components/common/CardInfo";
 
 function Boletos() {
+  const { eventId } = useParams();
   const [selectedTicket, setSelectedTicket] = useState(null);
 
   const tickets = [
@@ -26,7 +28,7 @@ function Boletos() {
 
       <div className="flex-grow w-full px-10 py-10">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-6xl font-normal mb-3">Innovate Summit 2025</h2>
+          <h2 className="text-6xl font-normal mb-3">{eventId ? `Boletos - Evento #${eventId}` : 'Boletos'}</h2>
 
           <p className="text-lg text-gray-400 max-w-4xl mb-10">
             La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios para
@@ -47,6 +49,9 @@ function Boletos() {
             </div>
           </div>
 
+          {!eventId && (
+            <div className="mb-6 text-yellow-400">Selecciona un evento antes de comprar boletos. Ir a <Link to="/events" className="underline">Eventos</Link></div>
+          )}
           <h3 className="text-4xl font-normal mb-8">Boletos</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             {tickets.map((ticket) => (

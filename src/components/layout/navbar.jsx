@@ -1,27 +1,21 @@
 import { Link } from "react-router-dom";
 import { routes } from "../../router/routes";
 import { useEffect, useState } from "react";
+import { useAuthStore } from '../../store/authStore';
+import { ROLES } from '../../utils/constants';
 
 export default function Navbar() {
+  const { isAuthenticated, role, logout } = useAuthStore();
   const [isLogged, setIsLogged] = useState(false);
-  const [role, setRole] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("role");
-
-    if (token) {
-      setIsLogged(true);
-      setRole(userRole);
-    }
-  }, []);
+    setIsLogged(isAuthenticated);
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setIsLogged(false);
-    setRole(null);
-    window.location.reload();
+    logout();
+    // Handle redirect to ensure the app state is reset
+    window.location.href = '/login';
   };
 
   return (
@@ -38,7 +32,7 @@ export default function Navbar() {
       <div className="flex items-center gap-4 font-jetbrains text-lg">
 
         {/* ---- ADMIN MENU (SOLO TEXTO, SIN CAMBIAR ESTILOS) ---- */}
-        {isLogged && role === "Admin" && (
+        {isLogged && (role === ROLES.ADMINISTRADOR || role === 'Admin') && (
           <>
             <Link
               to="/admin/eventos"

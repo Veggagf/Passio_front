@@ -1,23 +1,20 @@
-import { useState } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-export const useAuthStore = () => {
-	const [user, setUser] = useState(null);
-	const [role, setRole] = useState(null);
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-	const login = (userData) => {
-		setUser(userData.user);
-		setRole(userData.role);
-		setIsAuthenticated(true);
-		localStorage.setItem('token', userData.token);
-	};
-
-	const logout = () => {
-		setUser(null);
-		setRole(null);
-		setIsAuthenticated(false);
+export const useAuthStore = create(persist((set) => ({
+	user: null,
+	role: null,
+	token: null,
+	isAuthenticated: false,
+	login: (payload) => {
+		const { user, role, token } = payload;
+		set({ user, role, token, isAuthenticated: true });
+		if (token) localStorage.setItem('token', token);
+		if (role) localStorage.setItem('role', role);
+	},
+	logout: () => {
+		set({ user: null, role: null, token: null, isAuthenticated: false });
 		localStorage.removeItem('token');
-	};
-
-	return { user, role, isAuthenticated, login, logout };
-};
+		localStorage.removeItem('role');
+	},
+}), { name: 'auth-storage' }));
