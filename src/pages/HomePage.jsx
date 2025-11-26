@@ -8,7 +8,8 @@ import ini3 from "../assets/imagenes/ini3.jpg";
 import ini4 from "../assets/imagenes/ini4.jpg";
 import ini5 from "../assets/imagenes/ini5.jpg";
 import ini6 from "../assets/imagenes/ini6.jpg";
-import ini7 from "../assets/imagenes/ini7.jpg";
+import ini7 from "../assets/imagenes/ini7.jpg"
+import { Link } from 'react-router-dom';
 
 function HomePage() {
   return (
@@ -44,6 +45,18 @@ function HomePage() {
           />
         </div>
       </div>
+      
+      <div className="bg-black w-full py-32 px-15 text-white text-center"> 
+        <h2 className="text-5xl font-semibold mb-4">Consigue tus accesos</h2>
+        <p className="text-gray-300 text-xl mb-10">Los mejores eventos en el mejor lugar</p>
+        <Link to="/login"> 
+         <button className="px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition duration-300">
+           COMPRAR
+        </button>
+         </Link>
+      </div>
+
+
       <div className="bg-black w-full py-20 px-15 text-white">
         <h2 className="text-5xl font-semibold mb-4">Highlights from Our Events</h2>
         <p className="text-gray-300 text-2xl mb-10">See what makes every event unforgettable.</p>

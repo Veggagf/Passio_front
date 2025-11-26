@@ -20,13 +20,14 @@ function RegisterPage() {
         </div>
       </div>
 
-      <div className="bg-black w-full py-20 text-white flex justify-start px-16">
-        <div className="w-full max-w-xl">
+      <div className="bg-black w-full py-20 text-white flex justify-center px-16">
+        
+        <div className="w-full max-w-3xl">
           <h2 className="text-4xl font-jetbrains font-semibold mb-10 tracking-wide">
             REGÍSTRATE
           </h2>
 
-          <form className="grid grid-cols-1 gap-6 font-jetbrains text-base">
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6 font-jetbrains text-base">
             {[
               "Nombre",
               "A. paterno",
@@ -45,16 +46,30 @@ function RegisterPage() {
               </div>
             ))}
 
-            <div className="flex gap-4 mt-6">
-              <button className="bg-white text-black px-6 py-2 text-base rounded-lg hover:bg-gray-200 font-jetbrains">
-                Register
-              </button>
+            <div className="md:col-span-2 flex flex-col gap-6 mt-6">
+              <div className="flex gap-4">
+                <button className="bg-white text-black px-6 py-2 text-base rounded-lg hover:bg-gray-200 font-jetbrains">
+                  Register
+                </button>
 
-              <Link
-                to={routes.login}
-                className="border border-white px-6 py-2 text-base rounded-lg hover:bg-white hover:text-black font-jetbrains flex items-center justify-center">
-                Login
-              </Link>
+                <Link
+                  to={routes.login}
+                  className="border border-white px-6 py-2 text-base rounded-lg hover:bg-white hover:text-black font-jetbrains flex items-center justify-center">
+                  Login
+                </Link>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-800 w-full text-left">
+                  <p className="text-gray-400 mb-3 text-base">
+                      ¿Quieres registrarte como **Usuario**?
+                  </p>
+                  
+                  <Link 
+                      to={routes.registerUser} 
+                      className="text-white text-lg font-semibold border-b border-white hover:border-gray-400 transition duration-300"
+                  >
+                      Soy Usuario
+                  </Link>
+              </div>
             </div>
           </form>
         </div>
