@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { ROLES } from '../../utils/constants';
+import { routes } from '../../router/routes';
 
 export default function EventCard({ event }) {
   const navigate = useNavigate();
@@ -8,18 +10,18 @@ export default function EventCard({ event }) {
 
   const handleClick = () => {
     switch (role) {
-      case 'administrador':
-      case 'organizador':
-        navigate(`/events/dashboard/${event.id}`);
+      case ROLES.ADMINISTRADOR:
+      case ROLES.STAFF:
+        navigate(routes.eventsdashboardpage.replace(':eventId', event.id));
         break;
-      case 'staff':
-        navigate(`/events/dashboard/staff/${event.id}`);
+      case ROLES.ORGANIZADOR:
+        navigate(routes.eventsdashboardpageorganizer);
         break;
-      case 'usuario':
-        navigate(`/boletos/${event.id}`);
+      case ROLES.USUARIO:
+        navigate(routes.boletos.replace(':eventId?', event.id));
         break;
       default:
-        navigate('/login');
+        navigate(routes.login);
     }
   };
 

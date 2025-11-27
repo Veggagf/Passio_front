@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
-import CreateEventModal from "../../pages/events/createEventPage";
 import EventCard from '../../components/events/EventCard';
 import Evento1 from "../../assets/Imagenes/eventos/even1.jpg";
 import Evento2 from "../../assets/Imagenes/eventos/even2.jpg";
@@ -58,11 +57,20 @@ function EventsListPageuser() {
         </div>
       </div>
 
-      <Footer />
+      <div className="bg-black py-20">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
 
-      <CreateEventModal
-    
-      />
+          {filteredEvents.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+            />
+          ))}
+
+        </div>
+      </div>
+
+      <Footer />
     </>
   );
 }

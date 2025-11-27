@@ -19,24 +19,24 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-black text-white px-8 py-6 flex items-center justify-between border-b border-white/20">
-      
+
       <Link to={routes.home}>
         <h1 className="text-4xl font-metrophobic font-bold tracking-wide cursor-pointer">
           PASSIO
         </h1>
       </Link>
       <div className="flex items-center gap-4 font-jetbrains text-lg">
-        {isLogged && (role === ROLES.ADMINISTRADOR || role === 'Admin') && (
+        {isLogged && role === ROLES.ADMINISTRADOR && (
           <>
             <Link
-              to="/admin/eventos"
+              to={routes.eventslistpage}
               className="hover:text-gray-300 transition"
             >
               Eventos
             </Link>
 
             <Link
-              to="/admin/usuarios"
+              to={routes.usermanagementpage}
               className="hover:text-gray-300 transition"
             >
               Usuarios

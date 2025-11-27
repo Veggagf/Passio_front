@@ -13,7 +13,7 @@ import EventslistUser from "../pages/events/eventsListUser.jsx";
 import { routes } from "./routes.js";
 import EventsDashboardPageStaff from "../pages/events/eventsDahboardPageStaff.jsx";
 import EventsDashboardPageOrganizer from "../pages/events/eventsDashboardPageOrganizer.jsx";
-import ProtectedRoute from "../components/auth/ProductedRoute.jsx";
+import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
 import { ROLES } from "../utils/constants";
 
 export default function AppRouter() {
@@ -31,7 +31,7 @@ export default function AppRouter() {
         <Route
           path={routes.eventsdashboardpage}
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR]}>
+            <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR, ROLES.STAFF]}>
               <EventsDashboardPage />
             </ProtectedRoute>
           }
@@ -53,14 +53,14 @@ export default function AppRouter() {
           }
         />
         <Route
-           path={routes.eventsdashboardpageorganizer}
-           element={
-             <ProtectedRoute allowedRoles={[ROLES.ORGANIZADOR]}>
-               <EventsDashboardPageOrganizer />
-             </ProtectedRoute>
-           }
+          path={routes.eventsdashboardpageorganizer}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ORGANIZADOR]}>
+              <EventsDashboardPageOrganizer />
+            </ProtectedRoute>
+          }
         />
-        
+
       </Routes>
     </BrowserRouter>
   );

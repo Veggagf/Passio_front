@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login as apiLogin } from '../../api/authService';
 import { useAuthStore } from '../../store/authStore';
+import { routes } from '../../router/routes';
+import { ROLES } from '../../utils/constants';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
@@ -19,9 +21,14 @@ export default function LoginForm() {
     try {
       const result = await apiLogin({ username, password });
       login(result);
-      if (result.token) localStorage.setItem('token', result.token);
-      if (result.role) localStorage.setItem('role', result.role);
-      navigate('/');
+
+      if ([ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR, ROLES.STAFF].includes(result.role)) {
+        navigate(routes.eventslistpage);
+      } else if (result.role === ROLES.USUARIO) {
+        navigate(routes.eventslistpageuser);
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       console.error(err);
       alert('Error de login');
