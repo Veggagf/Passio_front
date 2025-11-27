@@ -9,4 +9,5 @@ export const routes = {
   eventsdashboardpagestaff: "/events/dashboard/staff/:eventId", 
   boletos: "/boletos/:eventId?",
   eventsdashboardpageorganizer: "/events/dashboard/organizer",
+  eventslistpageuser: "/events/user",
 };

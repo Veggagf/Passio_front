@@ -18,9 +18,7 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const result = await apiLogin({ username, password });
-      // result is expected to contain { user, role, token }
       login(result);
-      // Persist token and role for axios and legacy components
       if (result.token) localStorage.setItem('token', result.token);
       if (result.role) localStorage.setItem('role', result.role);
       navigate('/');
