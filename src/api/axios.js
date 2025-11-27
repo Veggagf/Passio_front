@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-	baseURL: 'http://localhost:8888/Passio_2/public',
+	baseURL: 'http://localhost:8888/Passio_2/public/',
 	withCredentials: true,
 });
 
