@@ -1,16 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../common/Button';
-import { createUser } from '../../api/userService';
+import { createUser, updateUser } from '../../api/userService';
 import { useAuthStore } from '../../store/authStore';
 
-export default function UserForm({ onSaved }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'usuario', username: '' });
+export default function UserForm({ onSaved, initialUser = null }) {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'usuario',
+    username: ''
+  });
   const [loading, setLoading] = useState(false);
   const { role: currentRole } = useAuthStore();
+  const isEditing = !!initialUser;
 
-  // Clase para inputs y select (Fondo negro, texto blanco)
+  useEffect(() => {
+    if (initialUser) {
+      setForm({
+        name: initialUser.name || '',
+        email: initialUser.email || '',
+        password: '',
+        role: initialUser.role || 'usuario',
+        username: initialUser.username || ''
+      });
+    }
+  }, [initialUser]);
+
   const inputClasses = "w-full p-3 bg-black text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
-  // Clase para etiquetas (Texto gris/negro, visible sobre fondo blanco del modal)
   const labelClasses = "block text-sm font-medium text-gray-700";
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
@@ -19,13 +36,37 @@ export default function UserForm({ onSaved }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await createUser(form, currentRole);
+      if (isEditing) {
+        const dataToUpdate = {
+          name: form.name,
+          email: form.email,
+          role: form.role,
+          username: form.username
+        };
+
+        if (form.password && form.password.trim() !== '') {
+          dataToUpdate.password = form.password;
+        }
+
+        await updateUser(initialUser.id, dataToUpdate, currentRole);
+        alert('Usuario actualizado exitosamente');
+      } else {
+        await createUser(form, currentRole);
+        alert('Usuario creado exitosamente');
+      }
+
       onSaved && onSaved();
-      // Limpiar el formulario después de guardar
-      setForm({ name: '', email: '', password: '', role: 'usuario', username: '' });
+
+      if (!isEditing) {
+        setForm({ name: '', email: '', password: '', role: 'usuario', username: '' });
+      }
     } catch (err) {
-      console.error(err);
-      alert('No se pudo crear el usuario');
+      const errorMessage = err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        `No se pudo ${isEditing ? 'actualizar' : 'crear'} el usuario`;
+
+      alert(`Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -34,7 +75,6 @@ export default function UserForm({ onSaved }) {
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      {/* Campo Nombre */}
       <div>
         <label htmlFor="name" className={labelClasses}>Nombre</label>
         <input
@@ -48,7 +88,6 @@ export default function UserForm({ onSaved }) {
         />
       </div>
 
-      {/* Campo Correo */}
       <div>
         <label htmlFor="email" className={labelClasses}>Correo</label>
         <input
@@ -62,7 +101,6 @@ export default function UserForm({ onSaved }) {
         />
       </div>
 
-      {/* Campo Username */}
       <div>
         <label htmlFor="username" className={labelClasses}>Username</label>
         <input
@@ -76,9 +114,10 @@ export default function UserForm({ onSaved }) {
         />
       </div>
 
-      {/* Campo Contraseña */}
       <div>
-        <label htmlFor="password" className={labelClasses}>Contraseña</label>
+        <label htmlFor="password" className={labelClasses}>
+          Contraseña {isEditing && '(dejar en blanco para no cambiar)'}
+        </label>
         <input
           id="password"
           name="password"
@@ -86,11 +125,11 @@ export default function UserForm({ onSaved }) {
           value={form.password}
           onChange={handleChange}
           className={inputClasses}
-          required
+          required={!isEditing}
+          placeholder={isEditing ? 'Nueva contraseña (opcional)' : 'Contraseña'}
         />
       </div>
 
-      {/* Campo Rol (Select) */}
       <div>
         <label htmlFor="role" className={labelClasses}>Rol</label>
         <select
@@ -109,7 +148,7 @@ export default function UserForm({ onSaved }) {
 
       <div className="md:col-span-2">
         <Button type="submit" className="bg-black text-white hover:bg-gray-800 w-full" disabled={loading}>
-          {loading ? 'Guardando...' : 'Guardar'}
+          {loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Guardar')}
         </Button>
       </div>
     </form>

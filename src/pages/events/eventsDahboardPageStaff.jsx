@@ -1,45 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
+import { getEventById } from "../../api/eventService";
 
 export default function EventsDashboardPageStaff() {
+  const { eventId } = useParams();
   const [activeSection, setActiveSection] = useState("boletos");
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [ticketCode, setTicketCode] = useState("");
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEventData();
+    }
+  }, [eventId]);
+
+  const fetchEventData = async () => {
+    try {
+      setLoading(true);
+      const data = await getEventById(eventId);
+      console.log("Staff Dashboard - Event Data:", data);
+      setEventData(data);
+    } catch (err) {
+      console.error("Error fetching event:", err);
+      setError("No se pudo cargar la información del evento.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleValidateTicket = () => {
+    alert(`Validando boleto: ${ticketCode} (Funcionalidad pendiente de backend)`);
+    setTicketCode("");
+  };
 
   const registrosaccesosColumns = [
     { key: "id", label: "ID" },
-    { key: "evento", label: "Evento" },
-    { key: "asistente", label: "Asistente" },
-    { key: "codigo", label: "Código" },
-    { key: "registrado", label: "Registrado" },
+    { key: "ticketId", label: "Ticket ID" },
+    { key: "validatedAt", label: "Hora Validación" },
+    { key: "status", label: "Estado" },
   ];
 
-  const registrosaccesosData = [
-    {
-      id: "001",
-      evento: "Innovate Summit 2025",
-      asistente: "Fer Vega",
-      codigo: "A-001",
-      registrado: "Sí",
-    },
-  ];
+  if (loading) return <div className="text-white text-center py-20">Cargando evento...</div>;
+  if (error) return <div className="text-red-500 text-center py-20">{error}</div>;
+  if (!eventData) return <div className="text-white text-center py-20">Evento no encontrado</div>;
+
+  const registrosaccesosData = eventData.validatedAccesses || [];
 
   return (
     <>
       <Navbar />
 
       <div className="bg-black w-full px-10 py-10">
-        <h1 className="text-7xl mb-3 text-white">Innovate Summit 2025</h1>
+        <h1 className="text-7xl mb-3 text-white">{eventData.name || eventData.title}</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
-          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios
-          para explorar las tendencias que están transformando el mundo.
+          {eventData.description}
         </div>
 
         <div className="flex gap-6 mb-8">
-          <EventInfoCard value="500" label="Capacidad" />
-          <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
-          <EventInfoCard value="Centro de conferencias" label="Ubicación" />
+          <EventInfoCard value={eventData.capacity} label="Capacidad" />
+          <EventInfoCard value={new Date(eventData.date).toLocaleDateString()} label="Fecha" />
+          <EventInfoCard value={eventData.location} label="Ubicación" />
         </div>
       </div>
 
@@ -48,21 +74,19 @@ export default function EventsDashboardPageStaff() {
           <nav className="flex flex-col gap-4">
             <button
               onClick={() => setActiveSection("boletos")}
-              className={`text-left ${
-                activeSection === "boletos"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "boletos"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               BOLETOS
             </button>
             <button
               onClick={() => setActiveSection("registrosaccesos")}
-              className={`text-left ${
-                activeSection === "registrosaccesos"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "registrosaccesos"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               REGISTRO DE ACCESOS
             </button>
@@ -78,8 +102,13 @@ export default function EventsDashboardPageStaff() {
                   type="text"
                   className="w-full p-3 mb-4 border border-gray-300 rounded-md"
                   placeholder="Ingresa el código del boleto"
+                  value={ticketCode}
+                  onChange={(e) => setTicketCode(e.target.value)}
                 />
-                <button className="bg-white border px-5 py-3 rounded-lg text-sm hover:bg-gray-100">
+                <button
+                  onClick={handleValidateTicket}
+                  className="bg-white border px-5 py-3 rounded-lg text-sm hover:bg-gray-100"
+                >
                   Registrar
                 </button>
               </div>

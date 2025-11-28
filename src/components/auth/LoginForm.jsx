@@ -31,41 +31,23 @@ export default function LoginForm() {
         password: formData.password,
       };
 
-      console.log('Enviando Payload de Login:', payload);
       const result = await apiLogin(payload);
-
-      // Extraer los datos reales de autenticación
-      // El backend devuelve { success: true, data: { user, role, token } }
       const authData = result.data || result;
-
-      // Guardar sesión en el store
       login(authData);
 
-      // Obtener el rol y normalizarlo (minúsculas y sin espacios)
       let userRole = authData.role || authData.user?.role;
       if (userRole) {
         userRole = String(userRole).toLowerCase().trim();
       }
 
-      console.log('Login Result (Full):', result);
-      console.log('Auth Data (Extracted):', authData);
-      console.log('Normalized Role:', userRole);
-
-      // Redirección basada en roles
       if ([ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR, ROLES.STAFF].includes(userRole)) {
-        console.log('Redirecting to EVENTS list');
         navigate(routes.eventslistpage);
       } else {
-        console.log('Redirecting to USER list');
         navigate(routes.eventslistpageuser);
       }
     } catch (err) {
-      console.error('Login Error:', err);
       if (err.response) {
-        console.error('Error Response Data:', err.response.data);
-        console.error('Error Status:', err.response.status);
-        console.error('Error Headers:', err.response.headers);
-        alert(`Error: ${err.response.data.message || 'Credenciales incorrectas o error en el servidor'}`);
+        alert(`Error: ${err.response.data.message || 'Credenciales incorrectas'}`);
       } else {
         alert('Error de conexión o error desconocido.');
       }

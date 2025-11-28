@@ -1,57 +1,99 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
+import { getEventById, deleteEvent } from "../../api/eventService";
+import { useAuthStore } from "../../store/authStore";
+import EventModal from "../../components/common/EventModal";
 
 export default function EventsDashboardPage() {
-const [activeSection, setActiveSection] = useState("asistentes");
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const { role } = useAuthStore();
+  const [activeSection, setActiveSection] = useState("asistentes");
+  const [eventData, setEventData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEventData();
+    }
+  }, [eventId]);
+
+  const fetchEventData = async () => {
+    try {
+      setLoading(true);
+      const data = await getEventById(eventId);
+      console.log("Event Data received:", data);
+      setEventData(data);
+    } catch (err) {
+      console.error("Error fetching event:", err);
+      setError("No se pudo cargar la información del evento.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.")) {
+      return;
+    }
+
+    try {
+      await deleteEvent(eventId, role);
+      alert("Evento eliminado exitosamente");
+      navigate("/events");
+    } catch (err) {
+      console.error("Error deleting event:", err);
+      alert("Error al eliminar el evento: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleEditEvent = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleEventSaved = () => {
+    fetchEventData();
+  };
 
   const asistentesColumns = [
     { key: "id", label: "ID" },
-    { key: "name", label: "Name" },
-    { key: "email", label: "E-Mail" },
-  ];
-
-  const asistentesData = [
-    { id: "001", name: "Fer Vega", email: "fv@mail.com" },
+    { key: "name", label: "Nombre" },
+    { key: "email", label: "Email" },
   ];
 
   const boletosColumns = [
-    { key: "ticket", label: "Ticket" },
-    { key: "tipo", label: "Tipo" },
-    { key: "precio", label: "Precio" },
+    { key: "id", label: "ID Boleto" },
+    { key: "type", label: "Tipo" },
+    { key: "price", label: "Precio" },
+    { key: "status", label: "Estado" },
   ];
-
-  const boletosData = [{ ticket: "T-001", tipo: "General", precio: "$450" }];
 
   const registrosColumns = [
-    { key: "hora", label: "Hora" },
-    { key: "usuario", label: "Usuario" },
-    { key: "accion", label: "Acción" },
-  ];
-
-  const registrosData = [
-    { hora: "10:32 AM", usuario: "Fer Vega", accion: "Entrada" },
+    { key: "timestamp", label: "Hora" },
+    { key: "userName", label: "Usuario" },
+    { key: "action", label: "Acción" },
   ];
 
   const dashboardColumns = [
     { key: "id", label: "ID" },
-    { key: "ticketid", label: "Ticked ID" },
-    { key: "datatime", label: "Data Time" },
+    { key: "ticketId", label: "Ticket ID" },
+    { key: "validatedAt", label: "Hora Validación" },
   ];
 
-  const dashboardData = [
-    { id: "001", ticketid: "T-001", datatime: "10:32 AM" },
-  ];
+  if (loading) return <div className="text-white text-center py-20">Cargando evento...</div>;
+  if (error) return <div className="text-red-500 text-center py-20">{error}</div>;
+  if (!eventData) return <div className="text-white text-center py-20">Evento no encontrado</div>;
 
-  const handleEdit = (row) => {
-    alert(`Editar: ${JSON.stringify(row)}`);
-  };
-
-  const handleDelete = (row) => {
-    alert(`Eliminar: ${JSON.stringify(row)}`);
-  };
+  const asistentesData = eventData.attendees || [];
+  const boletosData = eventData.tickets || [];
+  const registrosData = eventData.accessLogs || [];
+  const dashboardData = eventData.validatedAccesses || [];
 
   return (
     <>
@@ -59,24 +101,29 @@ const [activeSection, setActiveSection] = useState("asistentes");
 
       <div className="bg-black w-full px-10 py-10">
         <div className="flex justify-end mb-4 gap-2">
-          <button className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200">
-            Editar
+          <button
+            onClick={handleEditEvent}
+            className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-200"
+          >
+            Editar Evento
           </button>
-          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-            Eliminar
+          <button
+            onClick={handleDeleteEvent}
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+          >
+            Eliminar Evento
           </button>
         </div>
 
-        <h1 className="text-7xl mb-3 text-white">Innovate Summit 2025</h1>
+        <h1 className="text-7xl mb-3 text-white">{eventData.name || eventData.title}</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
-          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios
-          para explorar las tendencias que están transformando el mundo.
+          {eventData.description}
         </div>
 
         <div className="flex gap-6 mb-8">
-          <EventInfoCard value="500" label="Capacidad" />
-          <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
-          <EventInfoCard value="Centro de conferencias" label="Ubicación" />
+          <EventInfoCard value={eventData.capacity} label="Capacidad" />
+          <EventInfoCard value={new Date(eventData.date).toLocaleDateString()} label="Fecha" />
+          <EventInfoCard value={eventData.location} label="Ubicación" />
         </div>
       </div>
 
@@ -85,44 +132,40 @@ const [activeSection, setActiveSection] = useState("asistentes");
           <nav className="flex flex-col gap-4">
             <button
               onClick={() => setActiveSection("asistentes")}
-              className={`text-left ${
-                activeSection === "asistentes"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "asistentes"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               ASISTENTES
             </button>
 
             <button
               onClick={() => setActiveSection("boletos")}
-              className={`text-left ${
-                activeSection === "boletos"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "boletos"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               BOLETOS
             </button>
 
             <button
               onClick={() => setActiveSection("registros")}
-              className={`text-left ${
-                activeSection === "registros"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "registros"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               REGISTRO DE ACCESOS
             </button>
 
             <button
               onClick={() => setActiveSection("dashboard")}
-              className={`text-left ${
-                activeSection === "dashboard"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "dashboard"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               DASHBOARD
             </button>
@@ -134,8 +177,6 @@ const [activeSection, setActiveSection] = useState("asistentes");
             <Table
               columns={asistentesColumns}
               data={asistentesData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="ASISTENTES"
             />
           )}
@@ -144,8 +185,6 @@ const [activeSection, setActiveSection] = useState("asistentes");
             <Table
               columns={boletosColumns}
               data={boletosData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="BOLETOS"
             />
           )}
@@ -154,8 +193,6 @@ const [activeSection, setActiveSection] = useState("asistentes");
             <Table
               columns={registrosColumns}
               data={registrosData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
               title="REGISTRO DE ACCESOS"
             />
           )}
@@ -167,23 +204,28 @@ const [activeSection, setActiveSection] = useState("asistentes");
               </h3>
 
               <div className="flex gap-6 mb-8">
-                <EventInfoCard value="425" label="Capacidad" />
-                <EventInfoCard value="425" label="Boletos Vendidos" />
-                <EventInfoCard value="75" label="Capacidad Restante" />
+                <EventInfoCard value={eventData.capacity} label="Capacidad Total" />
+                <EventInfoCard value={boletosData.length} label="Boletos Vendidos" />
+                <EventInfoCard value={eventData.capacity - boletosData.length} label="Capacidad Restante" />
               </div>
 
               <Table
                 className="text-black"
                 columns={dashboardColumns}
                 data={dashboardData}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
                 title="Accesos Validados"
               />
             </>
           )}
         </div>
       </div>
+
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSaved={handleEventSaved}
+        initialEvent={eventData}
+      />
 
       <Footer />
     </>
