@@ -5,9 +5,10 @@ export const routes = {
   registerUser: "/registerUser",
   eventslistpage: "/events",
   usermanagementpage: "/admin/usuarios",
-  eventsdashboardpage: "/events/dashboard/:eventId", 
-  eventsdashboardpagestaff: "/events/dashboard/staff/:eventId", 
+  eventsdashboardpage: "/events/dashboard/:eventId",
+  eventsdashboardpagestaff: "/events/dashboard/staff/:eventId",
   boletos: "/boletos/:eventId?",
   eventsdashboardpageorganizer: "/events/dashboard/organizer",
-  eventslistpageuser: "/events/user",
+  eventslistpageuser: "/eventslistuser",
+  usermanagementpage: "/admin/usuarios"
 };

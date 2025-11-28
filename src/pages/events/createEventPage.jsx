@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import headerImage from '../../assets/Imagenes/creationback.jpg';
+import axios from '../../api/axios';
 
 function CreateEventModal({ isOpen, onClose }) {
-  if (!isOpen) return null; 
-  
+  if (!isOpen) return null;
+
   const [formData, setFormData] = useState({
-    nombre: '',
-    descripcion: '',
-    fecha: '',
-    ubicacion: '',
-    capacidad: '',
-    imagen: null,
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    capacity: '',
+    image: null,
   });
-  
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prevData) => ({
@@ -20,18 +21,41 @@ function CreateEventModal({ isOpen, onClose }) {
       [name]: files ? files[0] : value,
     }));
   };
-  
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos del evento a crear:', formData);
-    onClose(); 
-    setFormData({ nombre: '', descripcion: '', fecha: '', ubicacion: '', capacidad: '', imagen: null });
+
+    const dataToSend = new FormData();
+
+    Object.keys(formData).forEach(key => {
+      dataToSend.append(key, formData[key]);
+    });
+
+    try {
+      const response = await axios.post('/events', dataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Evento registrado con éxito:', response.data);
+      alert('¡Evento registrado con éxito!');
+
+      setFormData({ title: '', description: '', date: '', location: '', capacity: '', image: null });
+      onClose();
+
+    } catch (error) {
+      console.error('Error al registrar el evento:', error);
+      const errorMessage = error.response?.data?.message || 'Error al conectar con el servidor';
+      alert('Error al crear el evento: ' + errorMessage);
+    }
   };
-    const inputClasses = "w-full p-3 bg-black border border-white rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  
+
+  const inputClasses = "w-full p-3 bg-black border border-white rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500";
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
-      
+
       <div className="
         bg-black text-white rounded-xl shadow-2xl 
         w-full h-full max-w-7xl max-h-[95vh] 
@@ -42,42 +66,42 @@ function CreateEventModal({ isOpen, onClose }) {
 
         <div className="flex justify-between items-center border-b border-gray-700 pb-3 p-6">
           <h2 className="text-3xl font-bold">Crea tu evento</h2>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="text-gray-400 hover:text-white text-4xl leading-none"
             type="button"
           >
-            &times; 
+            &times;
           </button>
         </div>
-        
-        <div 
+
+        <div
           className="relative w-full h-40 flex items-center justify-center overflow-hidden"
           style={{
-            backgroundImage: `url(${headerImage})`, 
+            backgroundImage: `url(${headerImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
           <div className="absolute inset-0 bg-black opacity-40"></div>
-          
+
           <h2 className="relative text-3xl font-light text-center text-white z-10 p-4">
-            "Da el primer paso: <br/> construye tu próximo evento."
+            "Da el primer paso: <br /> construye tu próximo evento."
           </h2>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="flex-grow p-6 overflow-y-auto">
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 h-full">
-            
+
             <div className="space-y-6">
               <div>
-                <label htmlFor="nombre" className="block text-gray-300 text-sm font-semibold mb-2">Nombre del Evento</label>
+                <label htmlFor="title" className="block text-gray-300 text-sm font-semibold mb-2">Nombre del Evento</label>
                 <input
                   type="text"
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
+                  id="title"
+                  name="title"
+                  value={formData.title}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -85,12 +109,12 @@ function CreateEventModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label htmlFor="fecha" className="block text-gray-300 text-sm font-semibold mb-2">Fecha</label>
+                <label htmlFor="date" className="block text-gray-300 text-sm font-semibold mb-2">Fecha</label>
                 <input
                   type="date"
-                  id="fecha"
-                  name="fecha"
-                  value={formData.fecha}
+                  id="date"
+                  name="date"
+                  value={formData.date}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -98,12 +122,12 @@ function CreateEventModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label htmlFor="capacidad" className="block text-gray-300 text-sm font-semibold mb-2">Capacidad</label>
+                <label htmlFor="capacity" className="block text-gray-300 text-sm font-semibold mb-2">Capacidad</label>
                 <input
                   type="number"
-                  id="capacidad"
-                  name="capacidad"
-                  value={formData.capacidad}
+                  id="capacity"
+                  name="capacity"
+                  value={formData.capacity}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -113,12 +137,12 @@ function CreateEventModal({ isOpen, onClose }) {
 
             <div className="flex flex-col space-y-6">
               <div>
-                <label htmlFor="ubicacion" className="block text-gray-300 text-sm font-semibold mb-2">Ubicación</label>
+                <label htmlFor="location" className="block text-gray-300 text-sm font-semibold mb-2">Ubicación</label>
                 <input
                   type="text"
-                  id="ubicacion"
-                  name="ubicacion"
-                  value={formData.ubicacion}
+                  id="location"
+                  name="location"
+                  value={formData.location}
                   onChange={handleChange}
                   className={inputClasses}
                   required
@@ -126,11 +150,11 @@ function CreateEventModal({ isOpen, onClose }) {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="descripcion" className="block text-gray-300 text-sm font-semibold mb-2">Descripción</label>
+                <label htmlFor="description" className="block text-gray-300 text-sm font-semibold mb-2">Descripción</label>
                 <textarea
-                  id="descripcion"
-                  name="descripcion"
-                  value={formData.descripcion}
+                  id="description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleChange}
                   className={`${inputClasses} min-h-[100px]`}
                   required
@@ -140,20 +164,20 @@ function CreateEventModal({ isOpen, onClose }) {
 
             <div className="flex flex-col">
               <div className="flex-grow">
-                <label htmlFor="imagen" className="block text-gray-300 text-sm font-semibold mb-2">Imagen</label>
-                <div 
+                <label htmlFor="image" className="block text-gray-300 text-sm font-semibold mb-2">Imagen</label>
+                <div
                   className="bg-black rounded-lg p-8 w-full flex items-center justify-center cursor-pointer border-dashed border-2 border-white hover:border-gray-500 transition duration-150 h-[350px]"
-                  onClick={() => document.getElementById('imagen-upload').click()}
+                  onClick={() => document.getElementById('image-upload').click()}
                 >
-                  {formData.imagen ? (
-                    <p className="text-sm text-gray-400 text-center">Archivo: **{formData.imagen.name}**</p>
+                  {formData.image ? (
+                    <p className="text-sm text-gray-400 text-center">Archivo: **{formData.image.name}**</p>
                   ) : (
                     <span className="text-7xl text-gray-400 block">+</span>
                   )}
                   <input
                     type="file"
-                    id="imagen-upload"
-                    name="imagen"
+                    id="image-upload"
+                    name="image"
                     onChange={handleChange}
                     className="hidden"
                     accept="image/*"
@@ -170,7 +194,7 @@ function CreateEventModal({ isOpen, onClose }) {
                 </button>
               </div>
             </div>
-            
+
           </div>
         </form>
       </div>
