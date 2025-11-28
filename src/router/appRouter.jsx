@@ -9,7 +9,6 @@ import UserManagementPage from "../pages/admin/userManagementPage.jsx";
 import RegisterUser from "../pages/auth/registerUser.jsx";
 import Boletos from "../pages/events/boletos.jsx";
 import EventslistUser from "../pages/events/eventsListUser.jsx";
-
 import { routes } from "./routes.js";
 import EventsDashboardPageStaff from "../pages/events/eventsDahboardPageStaff.jsx";
 import EventsDashboardPageOrganizer from "../pages/events/eventsDashboardPageOrganizer.jsx";
@@ -27,12 +26,17 @@ export default function AppRouter() {
         <Route path={routes.registerUser} element={<RegisterUser />} />
         <Route path={routes.boletos} element={<Boletos />} />
         <Route path={routes.eventslistpageuser} element={<EventslistUser />} />
+        <Route path={routes.eventsDashboardPageStaff} element={<EventsDashboardPageStaff />} />
+        <Route path={routes.eventsDashboardPage} element={<EventsDashboardPage />} />
+        <Route path={routes.eventsDashboardPageOrganizer} element={<EventsDashboardPageOrganizer />} />
+        <Route path={routes.usermanagementpage} element={<UserManagementPage />} />
+
 
         <Route
           path={routes.eventsdashboardpage}
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR, ROLES.STAFF]}>
-              <EventsDashboardPage />
+              < EventsDashboardPage />
             </ProtectedRoute>
           }
         />

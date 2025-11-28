@@ -26,6 +26,7 @@ export default function Navbar() {
         </h1>
       </Link>
       <div className="flex items-center gap-4 font-jetbrains text-lg">
+        {/* Menú de Eventos y Usuarios, solo para ADMINISTRADOR y logueado */}
         {isLogged && role === ROLES.ADMINISTRADOR && (
           <>
             <Link
@@ -43,6 +44,8 @@ export default function Navbar() {
             </Link>
           </>
         )}
+
+        {/* Botones de Login y Register, solo si NO está logueado */}
         {!isLogged && (
           <>
             <Link
@@ -60,9 +63,12 @@ export default function Navbar() {
             </Link>
           </>
         )}
+
+        {/* Rol y Botón de Cerrar Sesión, solo si está logueado */}
         {isLogged && (
           <>
-            <span className="px-6 py-2 bg-white text-black rounded-full capitalize">
+            {/* **CORRECCIÓN:** Se cambia bg-white a un estilo de borde para que no se vea el fondo blanco sólido. */}
+            <span className="px-6 py-2 border border-white rounded-full capitalize">
               {role}
             </span>
 
