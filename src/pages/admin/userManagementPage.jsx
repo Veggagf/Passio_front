@@ -11,19 +11,49 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState([]);
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getUsers().then(setUsers).catch(err => console.error(err));
+    loadUsers();
   }, []);
 
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getUsers();
+      console.log('Usuarios cargados:', data);
+      setUsers(data);
+    } catch (err) {
+      console.error('Error al cargar usuarios:', err);
+      alert('Error al cargar los usuarios');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEdit = (row) => setEditing(row);
-  const handleDelete = () => setEditing(null);
 
   const refresh = async () => {
-    const u = await getUsers();
-    setUsers(u);
+    await loadUsers();
     setEditing(null);
   };
+
+  // Filtrar usuarios por rol activo
+  const filteredUsers = users.filter(user => {
+    const userRole = user.role?.toLowerCase();
+    switch (activeRole) {
+      case 'ADMINISTRADORES':
+        return userRole === 'administrador';
+      case 'ORGANIZADORES':
+        return userRole === 'organizador';
+      case 'STAFF':
+        return userRole === 'staff';
+      case 'USUARIOS':
+        return userRole === 'usuario';
+      default:
+        return true;
+    }
+  });
 
   return (
     <>
@@ -94,7 +124,13 @@ export default function UserManagementPage() {
 
           <div className="bg-white rounded-2xl w-full max-w-7xl mx-auto p-8 flex flex-col gap-6 flex-grow">
 
-            <UserTable users={users} onEdit={handleEdit} onRefresh={refresh} />
+            {loading ? (
+              <div className="text-center py-10">
+                <p className="text-gray-600">Cargando usuarios...</p>
+              </div>
+            ) : (
+              <UserTable users={filteredUsers} onEdit={handleEdit} onRefresh={refresh} />
+            )}
 
             {editing && (
               <div className="mt-8 p-6 border rounded-lg shadow-md">

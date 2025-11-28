@@ -5,12 +5,14 @@ export const getTickets = async () => {
 	return response.data;
 };
 
-export const createTicket = async (ticketData, role) => {
-	if (role === 'usuario' || role === 'staff') {
-		const response = await axios.post('/tickets', ticketData);
-		return response.data;
-	}
-	throw new Error('No tienes permisos para crear boletos');
+export const getTicketsByEvent = async (eventId) => {
+	const response = await axios.get(`/tickets/event/${eventId}`);
+	return response.data;
+};
+
+export const buyTicket = async (ticketId, quantity) => {
+	const response = await axios.post('/tickets/buy', { ticket_id: ticketId, quantity });
+	return response.data;
 };
 
 export const updateTicket = async (id, ticketData, role) => {

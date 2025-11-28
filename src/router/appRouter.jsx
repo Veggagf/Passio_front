@@ -26,17 +26,13 @@ export default function AppRouter() {
         <Route path={routes.registerUser} element={<RegisterUser />} />
         <Route path={routes.boletos} element={<Boletos />} />
         <Route path={routes.eventslistpageuser} element={<EventslistUser />} />
-        <Route path={routes.eventsDashboardPageStaff} element={<EventsDashboardPageStaff />} />
-        <Route path={routes.eventsDashboardPage} element={<EventsDashboardPage />} />
-        <Route path={routes.eventsDashboardPageOrganizer} element={<EventsDashboardPageOrganizer />} />
-        <Route path={routes.usermanagementpage} element={<UserManagementPage />} />
 
-
+        {/* Rutas Protegidas */}
         <Route
           path={routes.eventsdashboardpage}
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMINISTRADOR, ROLES.ORGANIZADOR, ROLES.STAFF]}>
-              < EventsDashboardPage />
+              <EventsDashboardPage />
             </ProtectedRoute>
           }
         />

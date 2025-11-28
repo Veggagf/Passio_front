@@ -1,24 +1,50 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
-import EventInfoCard from "../../components/common/CardInfo";
+import { buyTicket, getTicketsByEvent } from '../../api/ticketService';
+import { useAuthStore } from '../../store/authStore';
 
 function Boletos() {
   const { eventId } = useParams();
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [tickets, setTickets] = useState([]);
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
-  const tickets = [
-    { id: 1, name: "Normal", price: 500 },
-    { id: 2, name: "Preferencial", price: 1000 },
-    { id: 3, name: "VIP", price: 1500 },
-  ];
+  useEffect(() => {
+    const fetchTickets = async () => {
+      if (eventId) {
+        try {
+          const fetchedTickets = await getTicketsByEvent(eventId);
+          setTickets(fetchedTickets);
+        } catch (error) {
+          console.error("Error fetching tickets:", error);
+        }
+      }
+    };
+    fetchTickets();
+  }, [eventId]);
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
+    if (!isAuthenticated) {
+      alert("Debes iniciar sesión para comprar boletos.");
+      navigate('/login');
+      return;
+    }
+
     if (selectedTicket) {
-      console.log(`Boleto: ${selectedTicket.name} por $${selectedTicket.price}`);
+      try {
+        // Enviar ticket_id y quantity (1 por defecto)
+        await buyTicket(selectedTicket.id, 1);
+        alert(`¡Compra exitosa! Has adquirido un boleto ${selectedTicket.name}.`);
+        setSelectedTicket(null);
+      } catch (error) {
+        console.error("Error al comprar boleto:", error);
+        alert("Hubo un error al procesar tu compra. " + (error.response?.data?.message || error.message));
+      }
     } else {
-      console.log("Debes seleccionar un boleto antes de comprar.");
+      alert("Debes seleccionar un boleto antes de comprar.");
     }
   };
 
@@ -73,10 +99,9 @@ function Boletos() {
                 <label
                   key={ticket.id}
                   className={`flex items-center justify-between p-6 rounded-xl cursor-pointer transition duration-150 border border-2
-                    ${
-                      selectedTicket?.id === ticket.id
-                        ? 'bg-black text-white border-black'
-                        : 'bg-white text-black border-black hover:bg-gray-100'
+                    ${selectedTicket?.id === ticket.id
+                      ? 'bg-black text-white border-black'
+                      : 'bg-white text-black border-black hover:bg-gray-100'
                     }`}
                 >
                   <div className="flex flex-col">
@@ -102,10 +127,9 @@ function Boletos() {
               onClick={handleBuy}
               disabled={!selectedTicket}
               className={`mt-8 w-full py-4 rounded-xl text-lg font-normal transition duration-300 ease-in-out
-                ${
-                  selectedTicket
-                    ? 'bg-black text-white border border-white hover:bg-white hover:text-black shadow-lg'
-                    : 'bg-gray-200 text-gray-500 border border-gray-400 cursor-not-allowed'
+                ${selectedTicket
+                  ? 'bg-black text-white border border-white hover:bg-white hover:text-black shadow-lg'
+                  : 'bg-gray-200 text-gray-500 border border-gray-400 cursor-not-allowed'
                 }`}
             >
               {selectedTicket ? `COMPRAR BOLETO (${selectedTicket.name} - $${selectedTicket.price})` : 'SELECCIONA UN BOLETO'}
