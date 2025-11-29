@@ -43,8 +43,11 @@ function EventsListPage() {
     <>
       <Navbar />
 
-      <div className="relative w-full h-[600px] bg-black flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <div
+        className="relative w-full h-[600px] bg-cover bg-center flex items-center justify-center"
+        style={{ backgroundImage: `url(${Evento1})` }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <h1 className="text-white text-7xl font-light drop-shadow-lg">
             Eventos disponibles

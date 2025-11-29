@@ -9,7 +9,10 @@ export default function EventForm({ onSaved, initialEvent = null }) {
     description: '',
     date: '',
     location: '',
-    capacity: ''
+    capacity: '',
+    ticketPrice1: '',
+    ticketPrice2: '',
+    ticketPrice3: ''
   });
   const [loading, setLoading] = useState(false);
   const { role: currentRole } = useAuthStore();
@@ -25,7 +28,10 @@ export default function EventForm({ onSaved, initialEvent = null }) {
         description: initialEvent.description || '',
         date: formattedDate,
         location: initialEvent.location || '',
-        capacity: initialEvent.capacity || ''
+        capacity: initialEvent.capacity || '',
+        ticketPrice1: initialEvent.ticketPrice1 || '',
+        ticketPrice2: initialEvent.ticketPrice2 || '',
+        ticketPrice3: initialEvent.ticketPrice3 || ''
       });
     }
   }, [initialEvent]);
@@ -60,7 +66,7 @@ export default function EventForm({ onSaved, initialEvent = null }) {
       onSaved && onSaved();
 
       if (!isEditing) {
-        setForm({ name: '', description: '', date: '', location: '', capacity: '' });
+        setForm({ name: '', description: '', date: '', location: '', capacity: '', ticketPrice1: '', ticketPrice2: '', ticketPrice3: '' });
       }
     } catch (err) {
       console.error('Error completo:', err);
@@ -146,6 +152,49 @@ export default function EventForm({ onSaved, initialEvent = null }) {
           className={inputClasses}
           required
         />
+      </div>
+
+      {/* Precios de Boletos */}
+      <div className="md:col-span-2">
+        <label className={labelClasses}>Precios de Boletos</label>
+        <div className="grid grid-cols-3 gap-4 mt-1">
+          <div>
+            <label htmlFor="ticketPrice1" className="block text-xs font-medium text-gray-500 mb-1">Precio 1</label>
+            <input
+              id="ticketPrice1"
+              name="ticketPrice1"
+              type="number"
+              value={form.ticketPrice1}
+              onChange={handleChange}
+              className={inputClasses}
+              placeholder="0.00"
+            />
+          </div>
+          <div>
+            <label htmlFor="ticketPrice2" className="block text-xs font-medium text-gray-500 mb-1">Precio 2</label>
+            <input
+              id="ticketPrice2"
+              name="ticketPrice2"
+              type="number"
+              value={form.ticketPrice2}
+              onChange={handleChange}
+              className={inputClasses}
+              placeholder="0.00"
+            />
+          </div>
+          <div>
+            <label htmlFor="ticketPrice3" className="block text-xs font-medium text-gray-500 mb-1">Precio 3</label>
+            <input
+              id="ticketPrice3"
+              name="ticketPrice3"
+              type="number"
+              value={form.ticketPrice3}
+              onChange={handleChange}
+              className={inputClasses}
+              placeholder="0.00"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="md:col-span-2 mt-4">

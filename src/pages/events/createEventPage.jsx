@@ -11,6 +11,9 @@ function CreateEventModal({ isOpen, onClose }) {
     date: '',
     location: '',
     capacity: '',
+    ticketPrice1: '',
+    ticketPrice2: '',
+    ticketPrice3: '',
     image: null,
   });
 
@@ -41,7 +44,17 @@ function CreateEventModal({ isOpen, onClose }) {
       console.log('Evento registrado con éxito:', response.data);
       alert('¡Evento registrado con éxito!');
 
-      setFormData({ title: '', description: '', date: '', location: '', capacity: '', image: null });
+      setFormData({
+        title: '',
+        description: '',
+        date: '',
+        location: '',
+        capacity: '',
+        ticketPrice1: '',
+        ticketPrice2: '',
+        ticketPrice3: '',
+        image: null
+      });
       onClose();
 
     } catch (error) {
@@ -159,6 +172,48 @@ function CreateEventModal({ isOpen, onClose }) {
                   className={`${inputClasses} min-h-[100px]`}
                   required
                 ></textarea>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-gray-300 text-sm font-semibold">Precios de Boletos</label>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="ticketPrice1" className="block text-gray-400 text-xs mb-1">Precio 1</label>
+                    <input
+                      type="number"
+                      id="ticketPrice1"
+                      name="ticketPrice1"
+                      value={formData.ticketPrice1}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="ticketPrice2" className="block text-gray-400 text-xs mb-1">Precio 2</label>
+                    <input
+                      type="number"
+                      id="ticketPrice2"
+                      name="ticketPrice2"
+                      value={formData.ticketPrice2}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="ticketPrice3" className="block text-gray-400 text-xs mb-1">Precio 3</label>
+                    <input
+                      type="number"
+                      id="ticketPrice3"
+                      name="ticketPrice3"
+                      value={formData.ticketPrice3}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
