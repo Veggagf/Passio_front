@@ -5,6 +5,7 @@ import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 import { getEventById, deleteEvent } from "../../api/eventService";
+import { getAccessLogsByEvent } from "../../api/ticketService";
 import { useAuthStore } from "../../store/authStore";
 import EventModal from "../../components/common/EventModal";
 
@@ -14,24 +15,29 @@ export default function EventsDashboardPage() {
   const { role } = useAuthStore();
   const [activeSection, setActiveSection] = useState("asistentes");
   const [eventData, setEventData] = useState(null);
+  const [accessLogs, setAccessLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (eventId) {
-      fetchEventData();
+      fetchData();
     }
   }, [eventId]);
 
-  const fetchEventData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await getEventById(eventId);
-      console.log("Event Data received:", data);
-      setEventData(data);
+      const [event, logs] = await Promise.all([
+        getEventById(eventId),
+        getAccessLogsByEvent(eventId)
+      ]);
+      console.log("Event Data received:", event);
+      setEventData(event);
+      setAccessLogs(logs);
     } catch (err) {
-      console.error("Error fetching event:", err);
+      console.error("Error fetching event data:", err);
       setError("No se pudo cargar la información del evento.");
     } finally {
       setLoading(false);
@@ -58,7 +64,7 @@ export default function EventsDashboardPage() {
   };
 
   const handleEventSaved = () => {
-    fetchEventData();
+    fetchData();
   };
 
   const asistentesColumns = [
@@ -69,9 +75,9 @@ export default function EventsDashboardPage() {
 
   const boletosColumns = [
     { key: "id", label: "ID Boleto" },
-    { key: "type", label: "Tipo" },
+    { key: "name", label: "Nombre" },
     { key: "price", label: "Precio" },
-    { key: "status", label: "Estado" },
+    { key: "quantity_available", label: "Disponibles" },
   ];
 
   const registrosColumns = [
@@ -82,7 +88,7 @@ export default function EventsDashboardPage() {
 
   const dashboardColumns = [
     { key: "id", label: "ID" },
-    { key: "ticketId", label: "Ticket ID" },
+    { key: "ticketCode", label: "Código Ticket" },
     { key: "validatedAt", label: "Hora Validación" },
   ];
 
@@ -90,10 +96,34 @@ export default function EventsDashboardPage() {
   if (error) return <div className="text-red-500 text-center py-20">{error}</div>;
   if (!eventData) return <div className="text-white text-center py-20">Evento no encontrado</div>;
 
-  const asistentesData = eventData.attendees || [];
+  // Asistentes: Usuarios únicos que han accedido
+  const uniqueAttendees = new Map();
+  accessLogs.forEach(log => {
+    if (log.sale?.buyer) {
+      uniqueAttendees.set(log.sale.buyer.id, log.sale.buyer);
+    }
+  });
+  const asistentesData = Array.from(uniqueAttendees.values()).map(user => ({
+    id: user.id,
+    name: user.name,
+    email: user.email
+  }));
+
   const boletosData = eventData.tickets || [];
-  const registrosData = eventData.accessLogs || [];
-  const dashboardData = eventData.validatedAccesses || [];
+
+  // Mapear logs para las tablas
+  const registrosData = accessLogs.map(log => ({
+    id: log.id,
+    timestamp: new Date(log.scanned_at || log.createdAt).toLocaleString(),
+    userName: log.sale?.buyer?.name || 'Desconocido',
+    action: 'Entrada'
+  }));
+
+  const dashboardData = accessLogs.map(log => ({
+    id: log.id,
+    ticketCode: log.sale?.qr_code || 'N/A',
+    validatedAt: new Date(log.scanned_at || log.createdAt).toLocaleString(),
+  }));
 
   return (
     <>
@@ -205,8 +235,8 @@ export default function EventsDashboardPage() {
 
               <div className="flex gap-6 mb-8">
                 <EventInfoCard value={eventData.capacity} label="Capacidad Total" />
-                <EventInfoCard value={boletosData.length} label="Boletos Vendidos" />
-                <EventInfoCard value={eventData.capacity - boletosData.length} label="Capacidad Restante" />
+                <EventInfoCard value={boletosData.reduce((acc, t) => acc + (eventData.capacity / 3 - t.quantity_available), 0).toFixed(0) || "N/A"} label="Boletos Vendidos (Est.)" />
+                <EventInfoCard value={boletosData.reduce((acc, t) => acc + t.quantity_available, 0)} label="Capacidad Restante" />
               </div>
 
               <Table

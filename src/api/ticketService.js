@@ -15,6 +15,11 @@ export const buyTicket = async (ticketId, quantity) => {
 	return response.data;
 };
 
+export const createTicket = async (ticketData) => {
+	const response = await axios.post('/tickets', ticketData);
+	return response.data;
+};
+
 export const updateTicket = async (id, ticketData, role) => {
 	if (role === 'staff' || role === 'administrador') {
 		const response = await axios.put(`/tickets/${id}`, ticketData);
@@ -29,4 +34,19 @@ export const deleteTicket = async (id, role) => {
 		return response.data;
 	}
 	throw new Error('No tienes permisos para eliminar boletos');
+};
+
+export const getUserTickets = async () => {
+	const response = await axios.get('/tickets/user');
+	return response.data;
+};
+
+export const validateTicket = async (code) => {
+	const response = await axios.post('/tickets/validate', { qr_code: code });
+	return response.data;
+};
+
+export const getAccessLogsByEvent = async (eventId) => {
+	const response = await axios.get(`/tickets/event/${eventId}/logs`);
+	return response.data;
 };

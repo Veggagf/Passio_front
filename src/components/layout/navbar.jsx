@@ -45,6 +45,16 @@ export default function Navbar() {
           </>
         )}
 
+        {/* Link Mis Boletos solo para usuarios normales (no admin) */}
+        {isLogged && role === ROLES.USUARIO && (
+          <Link
+            to={routes.myTickets}
+            className="hover:text-gray-300 transition"
+          >
+            Mis Boletos
+          </Link>
+        )}
+
         {/* Botones de Login y Register, solo si NO está logueado */}
         {!isLogged && (
           <>
@@ -67,7 +77,6 @@ export default function Navbar() {
         {/* Rol y Botón de Cerrar Sesión, solo si está logueado */}
         {isLogged && (
           <>
-            {/* **CORRECCIÓN:** Se cambia bg-white a un estilo de borde para que no se vea el fondo blanco sólido. */}
             <span className="px-6 py-2 border border-white rounded-full capitalize">
               {role}
             </span>

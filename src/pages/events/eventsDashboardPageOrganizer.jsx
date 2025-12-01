@@ -1,49 +1,117 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Navbar from "../../components/layout/navbar";
 import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
+import { getEventById } from "../../api/eventService";
+import { getAccessLogsByEvent } from "../../api/ticketService";
 
 export default function EventsDashboardPageOrganizer() {
+  const { eventId } = useParams();
   const [activeSection, setActiveSection] = useState("asistentes");
+  const [eventData, setEventData] = useState(null);
+  const [accessLogs, setAccessLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchData();
+    }
+  }, [eventId]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [event, logs] = await Promise.all([
+        getEventById(eventId),
+        getAccessLogsByEvent(eventId)
+      ]);
+      setEventData(event);
+      setAccessLogs(logs);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="text-white text-center py-20">Cargando...</div>;
+  if (!eventData) return <div className="text-white text-center py-20">Evento no encontrado</div>;
+
+  // Mapeo de datos
+  // Asistentes: Usuarios únicos que han accedido (basado en accessLogs)
+  const uniqueAttendees = new Map();
+  accessLogs.forEach(log => {
+    if (log.sale?.buyer) {
+      uniqueAttendees.set(log.sale.buyer.id, log.sale.buyer);
+    }
+  });
+
+  const asistentesData = Array.from(uniqueAttendees.values()).map(user => ({
+    id: user.id,
+    name: user.name,
+    email: user.email
+  }));
+
+  const boletosData = eventData.tickets || [];
 
   const asistentesColumns = [
     { key: "id", label: "ID" },
-    { key: "name", label: "Name" },
-    { key: "email", label: "E-Mail" },
-  ];
-
-  const asistentesData = [
-    { id: "001", name: "Fer Vega", email: "fv@mail.com" },
+    { key: "name", label: "Nombre" },
+    { key: "email", label: "Email" },
   ];
 
   const boletosColumns = [
-    { key: "ticket", label: "Ticket" },
-    { key: "tipo", label: "Tipo" },
-    { key: "precio", label: "Precio" },
+    { key: "id", label: "ID Boleto" },
+    { key: "name", label: "Nombre" },
+    { key: "price", label: "Precio" },
+    { key: "quantity_available", label: "Disponibles" },
   ];
 
-  const boletosData = [{ ticket: "T-001", tipo: "General", precio: "$450" }];
-
+  // Datos para Registro de Accesos (Logs completos)
   const registrosColumns = [
-    { key: "hora", label: "Hora" },
-    { key: "usuario", label: "Usuario" },
-    { key: "accion", label: "Acción" },
+    { key: "timestamp", label: "Hora" },
+    { key: "userName", label: "Usuario" },
+    { key: "action", label: "Acción" },
   ];
 
-  const registrosData = [
-    { hora: "10:32 AM", usuario: "Fer Vega", accion: "Entrada" },
-  ];
+  const registrosData = accessLogs.map(log => ({
+    id: log.id,
+    timestamp: new Date(log.scanned_at || log.createdAt).toLocaleString(),
+    userName: log.sale?.buyer?.name || 'Desconocido',
+    action: 'Entrada'
+  }));
 
+  // Datos para Dashboard (Accesos Validados)
   const dashboardColumns = [
     { key: "id", label: "ID" },
-    { key: "ticketid", label: "Ticked ID" },
-    { key: "datatime", label: "Data Time" },
+    { key: "ticketCode", label: "Código Ticket" },
+    { key: "validatedAt", label: "Hora Validación" },
   ];
 
-  const dashboardData = [
-    { id: "001", ticketid: "T-001", datatime: "10:32 AM" },
-  ];
+  const dashboardData = accessLogs.map(log => ({
+    id: log.id,
+    ticketCode: log.sale?.qr_code || 'N/A',
+    validatedAt: new Date(log.scanned_at || log.createdAt).toLocaleString(),
+  }));
+
+  const ticketsSold = boletosData.reduce((acc, ticket) => {
+    // Calcular vendidos basándose en la capacidad inicial vs disponibles si es posible, 
+    // o simplemente mostrar los disponibles. 
+    // Como no tenemos el "total inicial" en el objeto ticket, usaremos la capacidad del evento - disponibles totales?
+    // Por ahora mostraremos la suma de disponibles.
+    return acc + (ticket.quantity_available || 0);
+  }, 0);
+
+  // Nota: Para "Boletos Vendidos" exactos necesitaríamos saber cuántos se han vendido en la tabla Sales.
+  // O restar la capacidad total - stock actual.
+  const totalCapacity = eventData.capacity;
+  // Estimación de vendidos (Capacidad - Stock Total de todos los tickets)
+  // Esto asume que el stock de los tickets suma la capacidad total.
+  const currentStock = boletosData.reduce((acc, t) => acc + t.quantity_available, 0);
+  const estimatedSold = totalCapacity - currentStock;
+
 
   return (
     <>
@@ -59,16 +127,15 @@ export default function EventsDashboardPageOrganizer() {
           </button>
         </div>
 
-        <h1 className="text-7xl mb-3 text-white">Innovate Summit 2025</h1>
+        <h1 className="text-7xl mb-3 text-white">{eventData.name || eventData.title}</h1>
         <div className="text-2xl mb-10 text-gray-300 whitespace-pre-line">
-          La Innovate Summit 2025 reúne a líderes, emprendedores y visionarios
-          para explorar las tendencias que están transformando el mundo.
+          {eventData.description}
         </div>
 
         <div className="flex gap-6 mb-8">
-          <EventInfoCard value="500" label="Capacidad" />
-          <EventInfoCard value="15 de noviembre del 2025" label="Fecha" />
-          <EventInfoCard value="Centro de conferencias" label="Ubicación" />
+          <EventInfoCard value={eventData.capacity} label="Capacidad" />
+          <EventInfoCard value={new Date(eventData.date).toLocaleDateString()} label="Fecha" />
+          <EventInfoCard value={eventData.location} label="Ubicación" />
         </div>
       </div>
 
@@ -77,44 +144,40 @@ export default function EventsDashboardPageOrganizer() {
           <nav className="flex flex-col gap-4">
             <button
               onClick={() => setActiveSection("asistentes")}
-              className={`text-left ${
-                activeSection === "asistentes"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "asistentes"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               ASISTENTES
             </button>
 
             <button
               onClick={() => setActiveSection("boletos")}
-              className={`text-left ${
-                activeSection === "boletos"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "boletos"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               BOLETOS
             </button>
 
             <button
               onClick={() => setActiveSection("registros")}
-              className={`text-left ${
-                activeSection === "registros"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "registros"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               REGISTRO DE ACCESOS
             </button>
 
             <button
               onClick={() => setActiveSection("dashboard")}
-              className={`text-left ${
-                activeSection === "dashboard"
-                  ? "font-bold text-white"
-                  : "text-white/70"
-              } hover:text-white`}
+              className={`text-left ${activeSection === "dashboard"
+                ? "font-bold text-white"
+                : "text-white/70"
+                } hover:text-white`}
             >
               DASHBOARD
             </button>
@@ -153,9 +216,9 @@ export default function EventsDashboardPageOrganizer() {
               </h3>
 
               <div className="flex gap-6 mb-8">
-                <EventInfoCard value="425" label="Capacidad" />
-                <EventInfoCard value="425" label="Boletos Vendidos" />
-                <EventInfoCard value="75" label="Capacidad Restante" />
+                <EventInfoCard value={totalCapacity} label="Capacidad Total" />
+                <EventInfoCard value={estimatedSold > 0 ? estimatedSold : 0} label="Boletos Vendidos (Est.)" />
+                <EventInfoCard value={currentStock} label="Capacidad Restante" />
               </div>
 
               <Table

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Button from '../common/Button';
 import { createEvent, updateEvent } from '../../api/eventService';
+import { createTicket, getTicketsByEvent, updateTicket } from '../../api/ticketService';
 import { useAuthStore } from '../../store/authStore';
 
 export default function EventForm({ onSaved, initialEvent = null }) {
@@ -19,21 +20,47 @@ export default function EventForm({ onSaved, initialEvent = null }) {
   const isEditing = !!initialEvent;
 
   useEffect(() => {
-    if (initialEvent) {
-      // Formatear la fecha para el input type="date" (YYYY-MM-DD)
-      const formattedDate = initialEvent.date ? new Date(initialEvent.date).toISOString().split('T')[0] : '';
+    const loadEventData = async () => {
+      if (initialEvent) {
+        // Formatear la fecha para el input type="date" (YYYY-MM-DD)
+        const formattedDate = initialEvent.date ? new Date(initialEvent.date).toISOString().split('T')[0] : '';
 
-      setForm({
-        name: initialEvent.name || initialEvent.title || '',
-        description: initialEvent.description || '',
-        date: formattedDate,
-        location: initialEvent.location || '',
-        capacity: initialEvent.capacity || '',
-        ticketPrice1: initialEvent.ticketPrice1 || '',
-        ticketPrice2: initialEvent.ticketPrice2 || '',
-        ticketPrice3: initialEvent.ticketPrice3 || ''
-      });
-    }
+        let prices = { ticketPrice1: '', ticketPrice2: '', ticketPrice3: '' };
+
+        // Intentar cargar tickets existentes si estamos editando
+        try {
+          const tickets = await getTicketsByEvent(initialEvent.id);
+          // Asumimos que vienen en orden o los ordenamos por precio/nombre
+          // O simplemente llenamos los slots disponibles
+          if (tickets && tickets.length > 0) {
+            if (tickets[0]) prices.ticketPrice1 = tickets[0].price;
+            if (tickets[1]) prices.ticketPrice2 = tickets[1].price;
+            if (tickets[2]) prices.ticketPrice3 = tickets[2].price;
+          } else {
+            // Fallback a los campos antiguos si existen
+            prices.ticketPrice1 = initialEvent.ticketPrice1 || '';
+            prices.ticketPrice2 = initialEvent.ticketPrice2 || '';
+            prices.ticketPrice3 = initialEvent.ticketPrice3 || '';
+          }
+        } catch (error) {
+          console.error("Error cargando tickets del evento:", error);
+          // Fallback
+          prices.ticketPrice1 = initialEvent.ticketPrice1 || '';
+          prices.ticketPrice2 = initialEvent.ticketPrice2 || '';
+          prices.ticketPrice3 = initialEvent.ticketPrice3 || '';
+        }
+
+        setForm({
+          name: initialEvent.name || initialEvent.title || '',
+          description: initialEvent.description || '',
+          date: formattedDate,
+          location: initialEvent.location || '',
+          capacity: initialEvent.capacity || '',
+          ...prices
+        });
+      }
+    };
+    loadEventData();
   }, [initialEvent]);
 
   // Clase para inputs y select (Fondo negro, texto blanco)
@@ -47,20 +74,72 @@ export default function EventForm({ onSaved, initialEvent = null }) {
     e.preventDefault();
     setLoading(true);
     try {
-      // Preparar payload asegurando que se envíe tanto name como title por si acaso
-      const payload = {
-        ...form,
-        title: form.name // Asegurar que el título también se actualice si el backend usa 'title'
+      // 1. Preparar payload del evento (sin los precios, o dejándolos si el backend los ignora)
+      const eventPayload = {
+        name: form.name,
+        description: form.description,
+        date: form.date,
+        location: form.location,
+        capacity: form.capacity,
+        title: form.name // Compatibilidad
       };
 
-      console.log('Enviando datos del evento:', payload);
+      console.log('Enviando datos del evento:', eventPayload);
 
+      let eventId;
       if (isEditing) {
-        await updateEvent(initialEvent.id, payload, currentRole);
+        await updateEvent(initialEvent.id, eventPayload, currentRole);
+        eventId = initialEvent.id;
         alert('Evento actualizado exitosamente');
       } else {
-        await createEvent(payload, currentRole);
+        const response = await createEvent(eventPayload, currentRole);
+        // Asumimos que la respuesta devuelve el evento creado con su ID
+        eventId = response.id || response.data?.id;
         alert('Evento creado exitosamente');
+      }
+
+      // 2. Manejar los boletos si tenemos un ID de evento válido
+      if (eventId) {
+        // Definir los tipos de boletos basados en los inputs
+        // Usaremos nombres genéricos o basados en la posición
+        const ticketDefinitions = [
+          { price: form.ticketPrice1, name: 'General', description: 'Entrada General' },
+          { price: form.ticketPrice2, name: 'Preferente', description: 'Entrada Preferente' },
+          { price: form.ticketPrice3, name: 'VIP', description: 'Entrada VIP' }
+        ];
+
+        let existingTickets = [];
+        if (isEditing) {
+          try {
+            existingTickets = await getTicketsByEvent(eventId);
+          } catch (err) {
+            console.warn("No se pudieron cargar tickets existentes", err);
+          }
+        }
+
+        const promises = ticketDefinitions.map(async (ticketDef, index) => {
+          if (ticketDef.price && parseFloat(ticketDef.price) > 0) {
+            const ticketData = {
+              name: ticketDef.name,
+              price: parseFloat(ticketDef.price),
+              quantity_available: Math.floor(parseInt(form.capacity) / 3), // Backend espera quantity_available
+              stock: Math.floor(parseInt(form.capacity) / 3), // Enviamos ambos por si acaso
+              event_id: eventId
+            };
+
+            // Si hay un ticket existente en esa "posición" (index), actualizamos
+            if (existingTickets[index]) {
+              // Solo si el rol permite editar tickets (staff/admin)
+              // updateTicket requiere rol
+              return updateTicket(existingTickets[index].id, ticketData, currentRole);
+            } else {
+              return createTicket(ticketData);
+            }
+          }
+          return Promise.resolve();
+        });
+
+        await Promise.all(promises);
       }
 
       onSaved && onSaved();

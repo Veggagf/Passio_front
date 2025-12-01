@@ -8,7 +8,7 @@ export const routes = {
   eventsdashboardpage: "/events/dashboard/:eventId",
   eventsdashboardpagestaff: "/events/dashboard/staff/:eventId",
   boletos: "/boletos/:eventId?",
-  eventsdashboardpageorganizer: "/events/dashboard/organizer",
+  eventsdashboardpageorganizer: "/events/dashboard/organizer/:eventId",
   eventslistpageuser: "/eventslistuser",
-  usermanagementpage: "/admin/usuarios"
+  myTickets: "/my-tickets"
 };
