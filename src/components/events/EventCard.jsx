@@ -19,7 +19,7 @@ export default function EventCard({ event }) {
         navigate(routes.eventsdashboardpagestaff.replace(':eventId', event.id));
         break;
       case ROLES.ORGANIZADOR:
-        navigate(routes.eventsdashboardpageorganizer);
+        navigate(routes.eventsdashboardpageorganizer.replace(':eventId', event.id));
         break;
       case ROLES.USUARIO:
         navigate(routes.boletos.replace(':eventId?', event.id));

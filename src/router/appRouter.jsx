@@ -9,6 +9,7 @@ import UserManagementPage from "../pages/admin/userManagementPage.jsx";
 import RegisterUser from "../pages/auth/registerUser.jsx";
 import Boletos from "../pages/events/boletos.jsx";
 import EventslistUser from "../pages/events/eventsListUser.jsx";
+import MyTicketsPage from "../pages/users/MyTicketsPage.jsx";
 import { routes } from "./routes.js";
 import EventsDashboardPageStaff from "../pages/events/eventsDahboardPageStaff.jsx";
 import EventsDashboardPageOrganizer from "../pages/events/eventsDashboardPageOrganizer.jsx";
@@ -26,6 +27,7 @@ export default function AppRouter() {
         <Route path={routes.registerUser} element={<RegisterUser />} />
         <Route path={routes.boletos} element={<Boletos />} />
         <Route path={routes.eventslistpageuser} element={<EventslistUser />} />
+        <Route path={routes.myTickets} element={<MyTicketsPage />} />
 
         {/* Rutas Protegidas */}
         <Route

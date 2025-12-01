@@ -5,6 +5,7 @@ import Footer from "../../components/layout/footer";
 import Table from "../../components/common/Table";
 import EventInfoCard from "../../components/common/CardInfo";
 import { getEventById } from "../../api/eventService";
+import { validateTicket, getAccessLogsByEvent } from "../../api/ticketService";
 
 export default function EventsDashboardPageStaff() {
   const { eventId } = useParams();
@@ -34,10 +35,45 @@ export default function EventsDashboardPageStaff() {
     }
   };
 
-  const handleValidateTicket = () => {
-    alert(`Validando boleto: ${ticketCode} (Funcionalidad pendiente de backend)`);
-    setTicketCode("");
+  const handleValidateTicket = async () => {
+    if (!ticketCode.trim()) {
+      alert("Por favor ingresa un código");
+      return;
+    }
+
+    try {
+      const response = await validateTicket(ticketCode);
+      if (response.valid) {
+        alert(`¡ÉXITO! Boleto validado correctamente.\nAsistente: ${response.sale.buyer.name}\nEvento: ${response.sale.ticket.event.name}`);
+        setTicketCode("");
+        fetchAccessLogs(); // Recargar logs
+      } else {
+        alert(`Error: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("Error validando boleto:", error);
+      alert("Error al validar: " + (error.response?.data?.message || error.message));
+    }
   };
+
+  const [registrosaccesosData, setRegistrosAccesosData] = useState([]);
+
+  const fetchAccessLogs = async () => {
+    try {
+      console.log("Fetching access logs for event:", eventId);
+      const logs = await getAccessLogsByEvent(eventId);
+      console.log("Access logs received:", logs);
+      setRegistrosAccesosData(logs);
+    } catch (error) {
+      console.error("Error fetching access logs:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (activeSection === "registrosaccesos") {
+      fetchAccessLogs();
+    }
+  }, [activeSection, eventId]);
 
   const registrosaccesosColumns = [
     { key: "id", label: "ID" },
@@ -50,7 +86,7 @@ export default function EventsDashboardPageStaff() {
   if (error) return <div className="text-red-500 text-center py-20">{error}</div>;
   if (!eventData) return <div className="text-white text-center py-20">Evento no encontrado</div>;
 
-  const registrosaccesosData = eventData.validatedAccesses || [];
+
 
   return (
     <>
@@ -117,8 +153,20 @@ export default function EventsDashboardPageStaff() {
 
           {activeSection === "registrosaccesos" && (
             <Table
-              columns={registrosaccesosColumns}
-              data={registrosaccesosData}
+              columns={[
+                { key: "id", label: "ID" },
+                { key: "ticketCode", label: "Código" },
+                { key: "assistant", label: "Asistente" },
+                { key: "validatedAt", label: "Hora Validación" },
+                { key: "staff", label: "Validado por" },
+              ]}
+              data={registrosaccesosData.map(log => ({
+                id: log.id,
+                ticketCode: log.sale?.qr_code,
+                assistant: log.sale?.buyer?.name || 'Desconocido',
+                validatedAt: new Date(log.scanned_at || log.createdAt).toLocaleString(),
+                staff: log.staff?.name || 'Sistema'
+              }))}
               title="REGISTRO DE ACCESOS"
             />
           )}
